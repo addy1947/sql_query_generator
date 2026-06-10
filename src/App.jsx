@@ -498,17 +498,27 @@ function App() {
               <span className="text-[9px] text-zinc-400 uppercase tracking-widest block font-medium">In-Browser Relational Engine</span>
             </div>
           </div>
-          {files.length > 0 && (
-            <button
-              onClick={handleReset}
-              className="text-xs px-3 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-900 border border-zinc-700 text-zinc-100 font-medium transition-all duration-200 flex items-center space-x-1.5 cursor-pointer shadow-sm"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          
+          <div className="flex items-center space-x-3">
+            <div className="hidden sm:flex items-center space-x-1.5 text-[10px] font-mono text-emerald-400 border border-emerald-950 bg-emerald-950/20 px-2.5 py-1 rounded-full">
+              <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
-              <span>Reset Workspace</span>
-            </button>
-          )}
+              <span>100% Client-Side</span>
+            </div>
+            
+            {files.length > 0 && (
+              <button
+                onClick={handleReset}
+                className="text-xs px-3 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-900 border border-zinc-700 text-zinc-100 font-medium transition-all duration-200 flex items-center space-x-1.5 cursor-pointer shadow-sm"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>Reset Workspace</span>
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -538,6 +548,12 @@ function App() {
                 <p className="mt-3 text-zinc-500 text-sm max-w-md mx-auto leading-relaxed">
                   Upload one or more CSV files, configure joins, build query rules visually, and execute them instantly in your browser.
                 </p>
+                <div className="mt-5 inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full border border-emerald-950 bg-emerald-950/20 text-emerald-400 text-xs font-mono font-medium shadow-sm">
+                  <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  <span>Your files never touch any servers. 100% in-browser processing.</span>
+                </div>
               </div>
 
               <div className="relative border border-zinc-800 hover:border-zinc-700 bg-[#0c0c0e] rounded-xl p-10 transition-all duration-300">
@@ -581,8 +597,11 @@ function App() {
                 </button>
               </div>
               
-              <div className="mt-12 text-center text-[10px] text-zinc-400 font-mono">
-                Your files never touch any servers. 100% in-browser processing.
+              <div className="mt-12 p-3.5 rounded-lg border border-zinc-900 bg-zinc-950/40 text-center text-[10px] text-zinc-400 font-mono flex items-center justify-center space-x-2 max-w-md mx-auto">
+                <svg className="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span>Zero server logs &mdash; All files parsed and processed entirely locally.</span>
               </div>
             </div>
           </div>

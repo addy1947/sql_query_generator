@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { parseCSV } from './utils/csvParser';
 import { useQueryGenerator } from './hooks/useQueryGenerator';
 import './App.css';
+import heroImage from './assets/hero.png';
 
 // Component imports
 import TableManager from './components/TableManager';
@@ -539,70 +540,99 @@ function App() {
 
         {files.length === 0 ? (
           /* Empty Upload State */
-          <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 w-full">
-            <div className="max-w-xl w-full text-center">
-              <div className="mb-8">
-                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-400">
-                  SQL Query Builder
-                </h1>
-                <p className="mt-3 text-zinc-500 text-sm max-w-md mx-auto leading-relaxed">
-                  Upload one or more CSV files, configure joins, build query rules visually, and execute them instantly in your browser.
-                </p>
-                <div className="mt-5 inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full border border-emerald-950 bg-emerald-950/20 text-emerald-400 text-xs font-mono font-medium shadow-sm">
+          <div className="flex-grow flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto">
+            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center text-center lg:text-left">
+              
+              {/* Left Column: Title, Tagline, Upload Box, and Sample Trigger */}
+              <div className="lg:col-span-5 space-y-6">
+                <div>
+                  <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-400">
+                    SQL Query Builder
+                  </h1>
+                  <p className="mt-3 text-zinc-400 text-sm leading-relaxed max-w-md mx-auto lg:mx-0">
+                    Upload one or more CSV files, configure joins, build query rules visually, and execute them instantly in your browser.
+                  </p>
+                </div>
+
+                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full border border-emerald-950 bg-emerald-950/20 text-emerald-400 text-xs font-mono font-medium shadow-sm">
                   <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
-                  <span>Your files never touch any servers. 100% in-browser processing.</span>
+                  <span>100% In-Browser & Private</span>
                 </div>
-              </div>
 
-              <div className="relative border border-zinc-800 hover:border-zinc-700 bg-[#0c0c0e] rounded-xl p-10 transition-all duration-300">
-                <input
-                  type="file"
-                  multiple
-                  accept=".csv"
-                  onChange={handleFileUpload}
-                  id="csv-file-input"
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-                <div className="text-center space-y-4">
-                  <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto">
-                    <svg className="w-6 h-6 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                <div className="relative border border-zinc-800 hover:border-zinc-700 bg-[#0c0c0e] rounded-xl p-8 transition-all duration-300 max-w-md mx-auto lg:mx-0">
+                  <input
+                    type="file"
+                    multiple
+                    accept=".csv"
+                    onChange={handleFileUpload}
+                    id="csv-file-input"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div className="text-center space-y-4">
+                    <div className="w-10 h-10 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto">
+                      <svg className="w-5 h-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                    </div>
+                    <div>
+                      <span className="block text-sm font-semibold text-zinc-200">Drag & drop CSV(s) here</span>
+                      <span className="block text-xs text-zinc-500 mt-1">or click to browse local files</span>
+                    </div>
+                    <div className="inline-flex items-center space-x-1 text-[9px] text-zinc-500 bg-[#060608] px-2.5 py-0.5 rounded border border-zinc-900 font-mono">
+                      <span>RFC 4180 parsing engine</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col space-y-3 max-w-md mx-auto lg:mx-0">
+                  <button
+                    type="button"
+                    onClick={handleLoadSampleDatasets}
+                    className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-semibold shadow-md shadow-indigo-950/50 transition-all duration-200 cursor-pointer flex items-center justify-center space-x-2 w-full animate-pulse-slow"
+                  >
+                    <svg className="w-3.5 h-3.5 text-zinc-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
-                  </div>
-                  <div>
-                    <span className="block text-sm font-semibold text-zinc-200">Drag & drop your CSV file(s) here</span>
-                    <span className="block text-xs text-zinc-500 mt-1">or click to select multiple files</span>
-                  </div>
-                  <div className="inline-flex items-center space-x-2 text-[10px] text-zinc-400 bg-[#0a0a0c] px-3 py-1 rounded-full border border-zinc-900">
-                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
-                    <span>Purely client-side CSV parsing (RFC 4180)</span>
+                    <span>Try with Sample Relational Data</span>
+                  </button>
+                  
+                  <div className="text-[10px] text-zinc-500 font-mono flex items-center justify-center lg:justify-start space-x-1.5">
+                    <svg className="w-3.5 h-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <span>Zero server logs - 100% processed locally.</span>
                   </div>
                 </div>
               </div>
 
-              {/* Try with sample data */}
-              <div className="mt-6 text-center">
-                <span className="text-zinc-700 text-xs font-mono block mb-3">&mdash; OR &mdash;</span>
-                <button
-                  type="button"
-                  onClick={handleLoadSampleDatasets}
-                  className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-semibold shadow-md shadow-indigo-950/50 transition-all duration-200 cursor-pointer flex items-center space-x-2 mx-auto"
-                >
-                  <svg className="w-3.5 h-3.5 text-zinc-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                  <span>Try with Sample Relational Data</span>
-                </button>
+              {/* Right Column: Premium Mockup Window of App SQL Query Generator */}
+              <div className="lg:col-span-7 flex justify-center w-full">
+                <div className="w-full bg-[#0a0a0c] border border-zinc-900 rounded-xl shadow-2xl overflow-hidden flex flex-col max-w-lg lg:max-w-none shadow-indigo-950/10">
+                  {/* Mock macOS Window Header */}
+                  <div className="px-4 py-3 border-b border-zinc-900 bg-[#0c0c0e] flex items-center justify-between">
+                    <div className="flex items-center space-x-1.5">
+                      <span className="w-3 h-3 rounded-full bg-[#ff5f56]"></span>
+                      <span className="w-3 h-3 rounded-full bg-[#ffbd2e]"></span>
+                      <span className="w-3 h-3 rounded-full bg-[#27c93f]"></span>
+                      <span className="pl-2.5 font-mono text-[10px] text-zinc-500 tracking-wider">GENERATED_QUERY.SQL</span>
+                    </div>
+                    <div className="flex items-center space-x-1.5">
+                      <span className="text-[9px] bg-zinc-900 border border-zinc-800 text-zinc-400 px-2 py-0.5 rounded font-mono">SQLite-compatible</span>
+                    </div>
+                  </div>
+                  {/* Mock SQL Highlight Preview */}
+                  <div className="p-4 bg-[#070708] flex items-center justify-center min-h-[160px]">
+                    <img
+                      src={heroImage}
+                      alt="SQL query preview illustration"
+                      className="rounded border border-zinc-900 max-w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity duration-300 shadow-lg"
+                    />
+                  </div>
+                </div>
               </div>
-              
-              <div className="mt-12 p-3.5 rounded-lg border border-zinc-900 bg-zinc-950/40 text-center text-[10px] text-zinc-400 font-mono flex items-center justify-center space-x-2 max-w-md mx-auto">
-                <svg className="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <span>Zero server logs &mdash; All files parsed and processed entirely locally.</span>
-              </div>
+
             </div>
           </div>
         ) : (

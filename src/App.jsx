@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { parseCSV } from './utils/csvParser';
-import { generateSQL } from './utils/sqlGenerator';
-import { executeQuery } from './utils/queryExecutor';
+import { useQueryGenerator } from './hooks/useQueryGenerator';
 import './App.css';
 
 // Component imports
@@ -61,7 +60,7 @@ function App() {
 
   // Expandable state for original CSV previews
   const [showCsvPreviewId, setShowCsvPreviewId] = useState('');
-  const [copySuccess, setCopySuccess] = useState(false);
+
 
   // ----------------------------------------------------
   // Derived / Memoized State
@@ -438,80 +437,21 @@ function App() {
   // ----------------------------------------------------
   // Live SQL Generator & Query Executor
   // ----------------------------------------------------
-  const sqlQuery = useMemo(() => {
-    if (!activeFile) return '';
-    
-    const joinParams = {
-      enabled: joinConfig.enabled && !!secondaryFile && !!joinConfig.leftKey && !!joinConfig.rightKey,
-      type: joinConfig.type,
-      tableName: secondaryFile ? secondaryFile.nameWithoutExt : '',
-      leftKey: joinConfig.leftKey,
-      rightKey: joinConfig.rightKey
-    };
-
-    return generateSQL({
-      tableName: activeFile.nameWithoutExt,
-      selectColumns: queryConfig.selectColumns,
-      conditions: queryConfig.conditions,
-      groupBy: queryConfig.groupBy,
-      orderBy: queryConfig.orderBy,
-      limit: queryConfig.limit,
-      offset: queryConfig.offset,
-      columnTypes: joinedData.columnTypes,
-      join: joinParams
-    });
-  }, [activeFile, queryConfig, joinedData.columnTypes, joinConfig, secondaryFile]);
-
-  const queryResults = useMemo(() => {
-    if (joinedData.rows.length === 0) return [];
-    return executeQuery(
-      joinedData.rows,
-      queryConfig,
-      joinedData.columnTypes
-    );
-  }, [joinedData.rows, queryConfig, joinedData.columnTypes]);
-
-  // GROUP BY Aggregate warning check
-  const showGroupByWarning = useMemo(() => {
-    if (!queryConfig.groupBy) return false;
-    if (queryConfig.selectColumns.length === 0) return true;
-    const hasNonGroupedSelections = queryConfig.selectColumns.some(col => col !== queryConfig.groupBy);
-    return hasNonGroupedSelections;
-  }, [queryConfig.groupBy, queryConfig.selectColumns]);
-
-  const nonGroupedColumns = useMemo(() => {
-    if (!queryConfig.groupBy) return [];
-    if (queryConfig.selectColumns.length === 0) {
-      return joinedData.headers.filter(h => h !== queryConfig.groupBy);
-    }
-    return queryConfig.selectColumns.filter(col => col !== queryConfig.groupBy);
-  }, [queryConfig.groupBy, queryConfig.selectColumns, joinedData.headers]);
-
-  // ----------------------------------------------------
-  // Output utilities
-  // ----------------------------------------------------
-  const handleCopySQL = async () => {
-    try {
-      await navigator.clipboard.writeText(sqlQuery);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-    }
-  };
-
-  const handleDownloadSQL = () => {
-    const element = document.createElement('a');
-    const fileBlob = new Blob([sqlQuery], { type: 'text/plain;charset=utf-8' });
-    element.href = URL.createObjectURL(fileBlob);
-    
-    const nameWithoutExt = activeFile ? activeFile.nameWithoutExt : 'query';
-    element.download = `${nameWithoutExt}.sql`;
-    
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-  };
+  const {
+    sqlQuery,
+    queryResults,
+    showGroupByWarning,
+    nonGroupedColumns,
+    copySuccess,
+    handleCopySQL,
+    handleDownloadSQL
+  } = useQueryGenerator({
+    activeFile,
+    secondaryFile,
+    queryConfig,
+    joinConfig,
+    joinedData
+  });
 
   // ----------------------------------------------------
   // Rendering Helpers

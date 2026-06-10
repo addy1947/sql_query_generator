@@ -49,6 +49,8 @@ Built using **React 19**, **Tailwind CSS v4**, and **Vite**.
 │   │   ├── WhereConditionsStep.jsx # Conditions filters editor card
 │   │   ├── WizardCard.jsx      # Wizard step wrapper container
 │   │   └── WizardProgress.jsx  # Top stepper tracker progress indicator
+│   ├── hooks/                  # Custom React Hooks
+│   │   └── useQueryGenerator.js # Hook encapsulating query evaluation, execution, warning, and output actions
 │   └── utils/                  # Helper Utilities & Execution Engine
 │       ├── csvParser.js        # RFC 4180-compliant CSV parser with type detection
 │       ├── queryExecutor.js    # Client-side SQL-like executor engine

@@ -5,7 +5,10 @@ export default function SqlPreview({
   sqlQuery,
   handleCopySQL,
   handleDownloadSQL,
-  copySuccess
+  copySuccess,
+  isAdvancedMode,
+  setIsAdvancedMode,
+  hasAdvancedConfigs
 }) {
   return (
     <div className="bg-[#0a0a0c] border border-zinc-900 rounded-xl shadow-sm overflow-hidden flex flex-col">
@@ -51,6 +54,25 @@ export default function SqlPreview({
           </button>
         </div>
       </div>
+
+      {!isAdvancedMode && hasAdvancedConfigs && (
+        <div className="p-3 bg-indigo-950/20 border-b border-zinc-900/60 flex items-center justify-between text-left animate-slide-down">
+          <div className="flex items-center space-x-2 text-[10px] text-zinc-300">
+            <svg className="w-4 h-4 text-indigo-400 flex-shrink-0 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>
+              Query contains advanced configurations (aggregations, aliases, or joins).
+            </span>
+          </div>
+          <button
+            onClick={() => setIsAdvancedMode(true)}
+            className="flex-shrink-0 px-2.5 py-1 text-[9px] font-bold bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 border border-indigo-500 rounded text-white transition-all cursor-pointer shadow-sm shadow-indigo-950/20"
+          >
+            Switch to Advanced
+          </button>
+        </div>
+      )}
 
       <div className="p-4 bg-[#070708] min-h-[140px] max-h-[260px] overflow-y-auto font-mono text-[11px] leading-relaxed border-b border-zinc-900 whitespace-pre text-left">
         {highlightSQL(sqlQuery)}

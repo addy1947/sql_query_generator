@@ -4,7 +4,8 @@ export default function ResultsTable({
   setQueryConfig,
   joinedData,
   showGroupByWarning,
-  nonGroupedColumns
+  nonGroupedColumns,
+  isAdvancedMode
 }) {
   const handleExportCSV = () => {
     if (queryResults.length === 0) return;
@@ -96,21 +97,23 @@ export default function ResultsTable({
       {/* Post-Processing Toolbar (GROUP BY, ORDER BY, LIMIT, OFFSET) */}
       <div className="p-3 bg-zinc-900/40 border-b border-zinc-900 flex flex-wrap items-center gap-3 text-[10px] text-zinc-400">
         {/* Group By selector */}
-        <div className="flex items-center space-x-1.5 flex-1 min-w-[125px]">
-          <span className="font-mono text-zinc-300 flex-shrink-0">GROUP BY</span>
-          <select
-            value={queryConfig.groupBy}
-            onChange={(e) => setQueryConfig(prev => ({ ...prev, groupBy: e.target.value }))}
-            className="flex-grow bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-[10px] text-white focus:outline-none focus:border-zinc-700"
-          >
-            <option value="">-- None --</option>
-            {(queryConfig.selectColumns.length === 0 ? joinedData.headers : queryConfig.selectColumns).map((col) => (
-              <option key={col} value={col}>
-                {col}
-              </option>
-            ))}
-          </select>
-        </div>
+        {isAdvancedMode && (
+          <div className="flex items-center space-x-1.5 flex-1 min-w-[125px]">
+            <span className="font-mono text-zinc-300 flex-shrink-0">GROUP BY</span>
+            <select
+              value={queryConfig.groupBy}
+              onChange={(e) => setQueryConfig(prev => ({ ...prev, groupBy: e.target.value }))}
+              className="flex-grow bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-[10px] text-white focus:outline-none focus:border-zinc-700 min-w-0"
+            >
+              <option value="">-- None --</option>
+              {(queryConfig.selectColumns.length === 0 ? joinedData.headers : queryConfig.selectColumns).map((col) => (
+                <option key={col} value={col}>
+                  {col}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Order By selector */}
         <div className="flex items-center space-x-1.5 flex-1 min-w-[170px]">
@@ -121,7 +124,7 @@ export default function ResultsTable({
               ...prev,
               orderBy: { ...prev.orderBy, column: e.target.value }
             }))}
-            className="flex-grow bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-[10px] text-white focus:outline-none focus:border-zinc-700"
+            className="flex-grow bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-[10px] text-white focus:outline-none focus:border-zinc-700 min-w-0"
           >
             <option value="">-- None --</option>
             {joinedData.headers.map((h) => (
@@ -137,7 +140,7 @@ export default function ResultsTable({
                 ...prev,
                 orderBy: { ...prev.orderBy, direction: prev.orderBy.direction === 'ASC' ? 'DESC' : 'ASC' }
               }))}
-              className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-900 border border-zinc-700 text-[9px] text-zinc-100 transition-all cursor-pointer font-bold shadow-sm"
+              className="flex-shrink-0 px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-900 border border-zinc-700 text-[9px] text-zinc-100 transition-all cursor-pointer font-bold shadow-sm"
               title={queryConfig.orderBy.direction === 'ASC' ? 'Ascending' : 'Descending'}
             >
               {queryConfig.orderBy.direction}

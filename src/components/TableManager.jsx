@@ -6,10 +6,15 @@ export default function TableManager({
   setActiveFileId,
   handleRemoveFile,
   handleFileUpload,
-  joinConfig
+  joinConfig,
+  presets = [],
+  handleSavePreset,
+  handleLoadPreset,
+  handleDeletePreset,
+  isAdvancedMode
 }) {
   return (
-    <div className="bg-[#0a0a0c] border border-zinc-900 rounded-xl p-4 space-y-3 shadow-sm">
+    <div className="bg-[#0a0a0c] border border-zinc-900 rounded-xl p-4 space-y-3.5 shadow-sm text-left">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Workspace Tables</span>
@@ -91,6 +96,78 @@ export default function TableManager({
           );
         })}
       </div>
+
+      {/* Saved Query Presets section */}
+      {isAdvancedMode && files.length > 0 && (
+        <div className="pt-3.5 border-t border-zinc-900/60 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Saved Query Presets</span>
+            <span className="text-[9px] font-mono text-zinc-500">
+              {presets.length} saved
+            </span>
+          </div>
+
+          {/* Preset Save Action Input */}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              id="new-preset-name"
+              placeholder="Query name..."
+              className="flex-grow bg-zinc-900/60 border border-zinc-800 rounded px-2.5 py-1.5 text-[10px] text-white focus:outline-none placeholder:text-zinc-500"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const val = e.target.value;
+                  if (val && val.trim()) {
+                    handleSavePreset(val);
+                    e.target.value = '';
+                  }
+                }
+              }}
+            />
+            <button
+              onClick={() => {
+                const el = document.getElementById('new-preset-name');
+                if (el && el.value && el.value.trim()) {
+                  handleSavePreset(el.value);
+                  el.value = '';
+                }
+              }}
+              className="px-2.5 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 border border-indigo-700 text-[10px] font-bold text-white transition-all cursor-pointer shadow-sm shadow-indigo-950/20"
+            >
+              Save Current
+            </button>
+          </div>
+
+          {/* List of Saved Presets */}
+          {presets.length > 0 && (
+            <div className="max-h-28 overflow-y-auto space-y-1.5 scrollbar-thin">
+              {presets.map((preset) => (
+                <div
+                  key={preset.id}
+                  className="p-2 rounded bg-zinc-900/40 border border-zinc-900/80 hover:border-zinc-800/80 flex items-center justify-between transition-all"
+                >
+                  <button
+                    onClick={() => handleLoadPreset(preset.id)}
+                    className="flex-grow text-left text-[10px] font-medium text-zinc-300 hover:text-white truncate cursor-pointer"
+                    title={`Load query preset: ${preset.name}`}
+                  >
+                    {preset.name}
+                  </button>
+                  <button
+                    onClick={() => handleDeletePreset(preset.id)}
+                    className="text-zinc-600 hover:text-zinc-400 p-0.5 rounded cursor-pointer transition-colors"
+                    title="Delete preset"
+                  >
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

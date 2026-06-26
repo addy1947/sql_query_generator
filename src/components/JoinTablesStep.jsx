@@ -6,7 +6,8 @@ export default function JoinTablesStep({
   files,
   activeFileId,
   activeFile,
-  secondaryFile
+  secondaryFile,
+  isAdvancedMode
 }) {
   return (
     <div className="space-y-3 text-left">
@@ -43,6 +44,12 @@ export default function JoinTablesStep({
                   >
                     <option value="INNER JOIN">INNER JOIN (Match Only)</option>
                     <option value="LEFT JOIN">LEFT JOIN (Keep All Primary Rows)</option>
+                    {isAdvancedMode && (
+                      <>
+                        <option value="RIGHT JOIN">RIGHT JOIN (Keep All Secondary Rows)</option>
+                        <option value="FULL OUTER JOIN">FULL OUTER JOIN (Keep All Rows)</option>
+                      </>
+                    )}
                   </select>
                 </div>
 

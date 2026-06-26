@@ -43,7 +43,9 @@ export function useQueryGenerator({
       limit: queryConfig.limit,
       offset: queryConfig.offset,
       columnTypes: joinedData.columnTypes,
-      join: joinParams
+      join: joinParams,
+      columnAggregates: queryConfig.columnAggregates,
+      columnAliases: queryConfig.columnAliases
     });
   }, [activeFile, queryConfig, joinedData.columnTypes, joinConfig, secondaryFile]);
 

@@ -14,6 +14,7 @@ import WhereConditionsStep from './components/WhereConditionsStep';
 import DatasetPreviews from './components/DatasetPreviews';
 import SqlPreview from './components/SqlPreview';
 import ResultsTable from './components/ResultsTable';
+import SchemaVisualizer from './components/SchemaVisualizer';
 
 const SAMPLE_EMPLOYEES = `id,name,department_id,salary
 101,Alice Johnson,1,95000
@@ -52,6 +53,8 @@ function App() {
   // SQL query configs
   const [queryConfig, setQueryConfig] = useState({
     selectColumns: [], // Empty means SELECT *
+    columnAggregates: {}, // Key: column name, Value: aggregate function ('COUNT', 'SUM', etc.)
+    columnAliases: {}, // Key: column name, Value: alias string
     conditions: [],    // { id, column, operator, value, conjunction }
     groupBy: '',
     orderBy: { column: '', direction: 'ASC' },
@@ -61,6 +64,60 @@ function App() {
 
   // Expandable state for original CSV previews
   const [showCsvPreviewId, setShowCsvPreviewId] = useState('');
+
+  const [isAdvancedMode, setIsAdvancedMode] = useState(false);
+
+  const hasAdvancedConfigs = useMemo(() => {
+    const hasAggs = queryConfig.selectColumns.some(col => queryConfig.columnAggregates[col] && queryConfig.columnAggregates[col] !== 'None');
+    const hasAliases = queryConfig.selectColumns.some(col => queryConfig.columnAliases[col] && queryConfig.columnAliases[col].trim() !== '');
+    const hasRightFullJoin = joinConfig.enabled && (joinConfig.type === 'RIGHT JOIN' || joinConfig.type === 'FULL OUTER JOIN');
+    const hasGrpBy = !!queryConfig.groupBy;
+    return hasAggs || hasAliases || hasRightFullJoin || hasGrpBy;
+  }, [queryConfig, joinConfig]);
+
+  // Preset Query Saving / Loading
+  const [presets, setPresets] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sql_query_presets');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const handleSavePreset = (presetName) => {
+    if (!presetName || !presetName.trim()) return;
+    const newPreset = {
+      name: presetName.trim(),
+      id: Date.now().toString(),
+      queryConfig,
+      joinConfig
+    };
+    setPresets(prev => {
+      const updated = [...prev.filter(p => p.name.toLowerCase() !== presetName.trim().toLowerCase()), newPreset];
+      localStorage.setItem('sql_query_presets', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleLoadPreset = (presetId) => {
+    const preset = presets.find(p => p.id === presetId);
+    if (!preset) return;
+    if (preset.queryConfig) {
+      setQueryConfig(preset.queryConfig);
+    }
+    if (preset.joinConfig) {
+      setJoinConfig(preset.joinConfig);
+    }
+  };
+
+  const handleDeletePreset = (presetId) => {
+    setPresets(prev => {
+      const updated = prev.filter(p => p.id !== presetId);
+      localStorage.setItem('sql_query_presets', JSON.stringify(updated));
+      return updated;
+    });
+  };
 
 
   // ----------------------------------------------------
@@ -97,7 +154,7 @@ function App() {
 
     const leftKey = joinConfig.leftKey;
     const rightKey = joinConfig.rightKey;
-    const isLeftJoin = joinConfig.type === 'LEFT JOIN';
+    const joinType = joinConfig.type;
     
     const primaryPrefix = activeFile.nameWithoutExt;
     const secondaryPrefix = secondaryFile.nameWithoutExt;
@@ -125,37 +182,64 @@ function App() {
       return resultObj;
     };
 
+    // Helper to generate empty rows for padding
+    const emptyPrimary = {};
+    activeFile.headers.forEach(h => {
+      emptyPrimary[`${primaryPrefix}.${h}`] = '';
+    });
+    const emptySecondary = {};
+    secondaryFile.headers.forEach(h => {
+      emptySecondary[`${secondaryPrefix}.${h}`] = '';
+    });
+
     const rows = [];
+    const matchedSecondaryIndices = new Set();
+
+    // Loop through primary rows
     for (const pRow of activeFile.rows) {
       const pVal = pRow[leftKey];
       let matches = [];
 
       if (pVal !== undefined && pVal !== null && pVal !== '') {
-        matches = secondaryFile.rows.filter(sRow => {
+        secondaryFile.rows.forEach((sRow, sIdx) => {
           const sVal = sRow[rightKey];
-          if (sVal === undefined || sVal === null || sVal === '') return false;
-          return sVal.toString().toLowerCase() === pVal.toString().toLowerCase();
+          if (sVal !== undefined && sVal !== null && sVal !== '') {
+            if (sVal.toString().toLowerCase() === pVal.toString().toLowerCase()) {
+              matches.push({ row: sRow, index: sIdx });
+            }
+          }
         });
       }
 
       if (matches.length > 0) {
-        for (const mRow of matches) {
+        for (const matchInfo of matches) {
+          matchedSecondaryIndices.add(matchInfo.index);
           rows.push({
             ...prefixRow(pRow, primaryPrefix),
-            ...prefixRow(mRow, secondaryPrefix)
+            ...prefixRow(matchInfo.row, secondaryPrefix)
           });
         }
-      } else if (isLeftJoin) {
-        // Build null row representation for secondary columns
-        const nullSecondary = {};
-        secondaryFile.headers.forEach(h => {
-          nullSecondary[`${secondaryPrefix}.${h}`] = '';
-        });
-        rows.push({
-          ...prefixRow(pRow, primaryPrefix),
-          ...nullSecondary
-        });
+      } else {
+        // No match: add if LEFT or FULL JOIN
+        if (joinType === 'LEFT JOIN' || joinType === 'FULL OUTER JOIN') {
+          rows.push({
+            ...prefixRow(pRow, primaryPrefix),
+            ...emptySecondary
+          });
+        }
       }
+    }
+
+    // Unmatched secondary rows for RIGHT or FULL JOIN
+    if (joinType === 'RIGHT JOIN' || joinType === 'FULL OUTER JOIN') {
+      secondaryFile.rows.forEach((sRow, sIdx) => {
+        if (!matchedSecondaryIndices.has(sIdx)) {
+          rows.push({
+            ...emptyPrimary,
+            ...prefixRow(sRow, secondaryPrefix)
+          });
+        }
+      });
     }
 
     return { headers, rows, columnTypes };
@@ -178,9 +262,23 @@ function App() {
       const validGroupBy = joinedData.headers.includes(prev.groupBy) ? prev.groupBy : '';
       const validOrderByCol = joinedData.headers.includes(prev.orderBy.column) ? prev.orderBy.column : '';
 
+      // Clean up aggregates/aliases for invalid/removed columns
+      const validAggregates = {};
+      const validAliases = {};
+      validSelects.forEach(col => {
+        if (prev.columnAggregates && prev.columnAggregates[col]) {
+          validAggregates[col] = prev.columnAggregates[col];
+        }
+        if (prev.columnAliases && prev.columnAliases[col]) {
+          validAliases[col] = prev.columnAliases[col];
+        }
+      });
+
       return {
         ...prev,
         selectColumns: validSelects,
+        columnAggregates: validAggregates,
+        columnAliases: validAliases,
         conditions: validConditions,
         groupBy: validGroupBy,
         orderBy: { ...prev.orderBy, column: validOrderByCol },
@@ -325,18 +423,27 @@ function App() {
           `${ePrefix}.salary`,
           `${dPrefix}.location`
         ],
+        columnAggregates: {},
+        columnAliases: {},
         conditions: [
           {
-            id: 'cond-1',
-            column: `${ePrefix}.salary`,
-            operator: '>',
-            value: '70000',
-            conjunction: 'AND'
+            id: 'group-sample-1',
+            conjunction: 'AND',
+            logic: 'AND',
+            rules: [
+              {
+                id: 'cond-1',
+                column: `${ePrefix}.salary`,
+                operator: '>',
+                value: '70000'
+              }
+            ]
           }
         ],
         groupBy: '',
         orderBy: { column: `${ePrefix}.salary`, direction: 'DESC' },
-        limit: '10'
+        limit: '10',
+        offset: ''
       });
 
       setWizardStep(3); // Start user at Step 3 (WHERE)
@@ -359,6 +466,8 @@ function App() {
     });
     setQueryConfig({
       selectColumns: [],
+      columnAggregates: {},
+      columnAliases: {},
       conditions: [],
       groupBy: '',
       orderBy: { column: '', direction: 'ASC' },
@@ -394,45 +503,175 @@ function App() {
     }));
   };
 
+  const handleUpdateColumnAggregate = (col, val) => {
+    setQueryConfig(prev => ({
+      ...prev,
+      columnAggregates: {
+        ...prev.columnAggregates,
+        [col]: val
+      }
+    }));
+  };
+
+  const handleUpdateColumnAlias = (col, val) => {
+    setQueryConfig(prev => ({
+      ...prev,
+      columnAliases: {
+        ...prev.columnAliases,
+        [col]: val
+      }
+    }));
+  };
+
   const filteredHeaders = useMemo(() => {
     return joinedData.headers.filter(h => 
       h.toLowerCase().includes(searchColumnQuery.toLowerCase())
     );
   }, [joinedData.headers, searchColumnQuery]);
 
-  // ----------------------------------------------------
-  // Condition Handlers (Step 3)
-  // ----------------------------------------------------
-  const handleAddCondition = () => {
-    setQueryConfig(prev => ({
-      ...prev,
-      conditions: [
-        ...prev.conditions,
+  const migrateConditions = (conditions) => {
+    if (!conditions || !Array.isArray(conditions)) return [];
+    if (conditions.length === 0) return [];
+    if (conditions[0].rules !== undefined) return conditions;
+    return conditions.map((cond, idx) => ({
+      id: `migrated-group-${cond.id || idx}`,
+      conjunction: cond.conjunction || 'AND',
+      logic: 'AND',
+      rules: [
         {
-          id: Date.now().toString(),
-          column: joinedData.headers[0] || '',
-          operator: '=',
-          value: '',
-          conjunction: 'AND'
+          id: cond.id || `migrated-rule-${idx}`,
+          column: cond.column || '',
+          operator: cond.operator || '=',
+          value: cond.value || ''
         }
       ]
     }));
   };
 
-  const handleRemoveCondition = (id) => {
-    setQueryConfig(prev => ({
-      ...prev,
-      conditions: prev.conditions.filter(c => c.id !== id)
-    }));
+  // ----------------------------------------------------
+  // Condition Handlers (Step 3) - Filter Groups System
+  // ----------------------------------------------------
+  const handleAddFilterGroup = () => {
+    setQueryConfig(prev => {
+      const newGroup = {
+        id: `group-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+        conjunction: 'AND',
+        logic: 'AND',
+        rules: [
+          {
+            id: `rule-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+            column: joinedData.headers[0] || '',
+            operator: '=',
+            value: ''
+          }
+        ]
+      };
+      const currentGroups = migrateConditions(prev.conditions);
+      return {
+        ...prev,
+        conditions: [...currentGroups, newGroup]
+      };
+    });
   };
 
-  const handleConditionChange = (id, field, val) => {
-    setQueryConfig(prev => ({
-      ...prev,
-      conditions: prev.conditions.map(c => 
-        c.id === id ? { ...c, [field]: val } : c
-      )
-    }));
+  const handleRemoveFilterGroup = (groupId) => {
+    setQueryConfig(prev => {
+      const currentGroups = migrateConditions(prev.conditions);
+      return {
+        ...prev,
+        conditions: currentGroups.filter(g => g.id !== groupId)
+      };
+    });
+  };
+
+  const handleGroupLogicChange = (groupId, logic) => {
+    setQueryConfig(prev => {
+      const currentGroups = migrateConditions(prev.conditions);
+      return {
+        ...prev,
+        conditions: currentGroups.map(g => 
+          g.id === groupId ? { ...g, logic } : g
+        )
+      };
+    });
+  };
+
+  const handleGroupConjunctionChange = (groupId, conjunction) => {
+    setQueryConfig(prev => {
+      const currentGroups = migrateConditions(prev.conditions);
+      return {
+        ...prev,
+        conditions: currentGroups.map(g => 
+          g.id === groupId ? { ...g, conjunction } : g
+        )
+      };
+    });
+  };
+
+  const handleAddRuleToGroup = (groupId) => {
+    setQueryConfig(prev => {
+      const currentGroups = migrateConditions(prev.conditions);
+      return {
+        ...prev,
+        conditions: currentGroups.map(g => {
+          if (g.id === groupId) {
+            return {
+              ...g,
+              rules: [
+                ...g.rules,
+                {
+                  id: `rule-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+                  column: joinedData.headers[0] || '',
+                  operator: '=',
+                  value: ''
+                }
+              ]
+            };
+          }
+          return g;
+        })
+      };
+    });
+  };
+
+  const handleRemoveRuleFromGroup = (groupId, ruleId) => {
+    setQueryConfig(prev => {
+      const currentGroups = migrateConditions(prev.conditions);
+      const updatedGroups = currentGroups.map(g => {
+        if (g.id === groupId) {
+          return {
+            ...g,
+            rules: g.rules.filter(r => r.id !== ruleId)
+          };
+        }
+        return g;
+      }).filter(g => g.rules.length > 0);
+
+      return {
+        ...prev,
+        conditions: updatedGroups
+      };
+    });
+  };
+
+  const handleRuleChange = (groupId, ruleId, field, val) => {
+    setQueryConfig(prev => {
+      const currentGroups = migrateConditions(prev.conditions);
+      return {
+        ...prev,
+        conditions: currentGroups.map(g => {
+          if (g.id === groupId) {
+            return {
+              ...g,
+              rules: g.rules.map(r => 
+                r.id === ruleId ? { ...r, [field]: val } : r
+              )
+            };
+          }
+          return g;
+        })
+      };
+    });
   };
 
   // ----------------------------------------------------
@@ -460,22 +699,31 @@ function App() {
   const renderStepSummary = (stepNum) => {
     switch (stepNum) {
       case 1:
-        return queryConfig.selectColumns.length === 0
-          ? 'SELECT * (All columns)'
-          : `SELECT ${queryConfig.selectColumns.join(', ')}`;
-      case 2:
         return joinConfig.enabled && secondaryFile && joinConfig.leftKey && joinConfig.rightKey
           ? `${joinConfig.type} \`${secondaryFile.nameWithoutExt}\` ON \`${activeFile.nameWithoutExt}\`.\`${joinConfig.leftKey}\` = \`${secondaryFile.nameWithoutExt}\`.\`${joinConfig.rightKey}\``
           : 'No relational join configured';
+      case 2:
+        return queryConfig.selectColumns.length === 0
+          ? 'SELECT * (All columns)'
+          : `SELECT ${queryConfig.selectColumns.join(', ')}`;
       case 3: {
-        const activeConds = queryConfig.conditions.filter(c => 
-          c.column && (c.operator === 'IS NULL' || c.operator === 'IS NOT NULL' || (c.value !== undefined && c.value !== null && c.value.trim() !== ''))
-        );
-        if (activeConds.length === 0) return 'No filters applied';
-        return activeConds.map((c, i) => {
-          const conj = i > 0 ? ` ${c.conjunction} ` : '';
-          const valText = (c.operator === 'IS NULL' || c.operator === 'IS NOT NULL') ? '' : ` '${c.value}'`;
-          return `${conj}${c.column} ${c.operator}${valText}`;
+        const groups = migrateConditions(queryConfig.conditions);
+        const activeGroups = groups.map(g => {
+          const validRules = g.rules.filter(r => 
+            r.column && (r.operator === 'IS NULL' || r.operator === 'IS NOT NULL' || (r.value !== undefined && r.value !== null && r.value.trim() !== ''))
+          );
+          return { ...g, rules: validRules };
+        }).filter(g => g.rules.length > 0);
+
+        if (activeGroups.length === 0) return 'No filters applied';
+
+        return activeGroups.map((g, idx) => {
+          const groupConj = idx > 0 ? ` ${g.conjunction} ` : '';
+          const innerStr = g.rules.map(r => {
+            const valText = (r.operator === 'IS NULL' || r.operator === 'IS NOT NULL') ? '' : ` '${r.value}'`;
+            return `${r.column} ${r.operator}${valText}`;
+          }).join(` ${g.logic} `);
+          return `${groupConj}(${innerStr})`;
         }).join('');
       }
       default:
@@ -484,7 +732,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070708] text-zinc-200 flex flex-col font-sans selection:bg-zinc-800 selection:text-zinc-100">
+    <div className="lg:h-screen lg:overflow-hidden bg-[#070708] text-zinc-200 flex flex-col font-sans selection:bg-zinc-800 selection:text-zinc-100">
       {/* Top navbar (Full-Screen Width) */}
       <header className="border-b border-zinc-900 bg-[#0a0a0c]/90 backdrop-blur-md sticky top-0 z-50">
         <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -501,6 +749,21 @@ function App() {
           </div>
           
           <div className="flex items-center space-x-3">
+            {/* Switch to Advanced Mode Toggle */}
+            <button
+              onClick={() => setIsAdvancedMode(!isAdvancedMode)}
+              className={`text-xs px-3.5 py-1.5 rounded-lg border font-semibold transition-all duration-200 flex items-center space-x-2 cursor-pointer shadow-sm ${
+                isAdvancedMode
+                  ? 'bg-indigo-650 hover:bg-indigo-600 border-indigo-550 text-white shadow-indigo-950/20'
+                  : 'bg-zinc-900 hover:bg-zinc-800 border-zinc-800 text-zinc-300'
+              }`}
+            >
+              <svg className={`w-3.5 h-3.5 transition-transform duration-300 ${isAdvancedMode ? 'rotate-180 text-white' : 'text-zinc-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span>{isAdvancedMode ? 'Advanced Mode: ON' : 'Switch to Advanced'}</span>
+            </button>
+
             <div className="hidden sm:flex items-center space-x-1.5 text-[10px] font-mono text-emerald-400 border border-emerald-950 bg-emerald-950/20 px-2.5 py-1 rounded-full">
               <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -524,7 +787,7 @@ function App() {
       </header>
 
       {/* Main Container */}
-      <main className="flex-grow w-full max-w-none flex flex-col min-h-0">
+      <main className="flex-grow w-full max-w-none flex flex-col min-h-0 lg:overflow-hidden">
         {/* Error notification */}
         {error && (
           <div className="mx-4 sm:mx-6 lg:mx-8 mt-6 p-4 rounded-lg bg-zinc-900/50 border border-zinc-800 text-zinc-100 text-xs whitespace-pre-line flex items-start space-x-3 animate-fade-in">
@@ -539,106 +802,227 @@ function App() {
         )}
 
         {files.length === 0 ? (
-          /* Empty Upload State */
-          <div className="flex-grow flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 w-full max-w-6xl mx-auto">
-            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center text-center lg:text-left">
-              
-              {/* Left Column: Title, Tagline, Upload Box, and Sample Trigger */}
-              <div className="lg:col-span-5 space-y-6">
-                <div>
-                  <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-400">
-                    SQL Query Builder
-                  </h1>
-                  <p className="mt-3 text-zinc-400 text-sm leading-relaxed max-w-md mx-auto lg:mx-0">
-                    Upload one or more CSV files, configure joins, build query rules visually, and execute them instantly in your browser.
+          /* Empty Upload State (Scroll Snap Pages) */
+          <div className="flex-grow w-full overflow-y-auto snap-y snap-mandatory scroll-smooth h-[calc(100vh-4rem)] scrollbar-none bg-[#070708]">
+            
+            {/* Page 1: Main Upload & Mockup Section */}
+            <section className="snap-start min-h-[calc(100vh-4rem)] flex-shrink-0 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 w-full relative">
+              <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center text-center lg:text-left">
+                
+                {/* Left Column: Title, Tagline, Upload Box, and Sample Trigger */}
+                <div className="lg:col-span-5 space-y-6">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-400">
+                      SQL Query Builder
+                    </h1>
+                    <p className="mt-3 text-zinc-400 text-sm leading-relaxed max-w-md mx-auto lg:mx-0">
+                      Upload one or more CSV files, configure joins, build query rules visually, and execute them instantly in your browser.
+                    </p>
+                  </div>
+
+                  <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full border border-emerald-950 bg-emerald-950/20 text-emerald-400 text-xs font-mono font-medium shadow-sm">
+                    <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span>100% In-Browser & Private</span>
+                  </div>
+
+                  <div className="relative border border-zinc-800 hover:border-zinc-700 bg-[#0c0c0e] rounded-xl p-8 transition-all duration-300 max-w-md mx-auto lg:mx-0">
+                    <input
+                      type="file"
+                      multiple
+                      accept=".csv"
+                      onChange={handleFileUpload}
+                      id="csv-file-input"
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <div className="text-center space-y-4">
+                      <div className="w-10 h-10 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto">
+                        <svg className="w-5 h-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                      </div>
+                      <div>
+                        <span className="block text-sm font-semibold text-zinc-200">Drag & drop CSV(s) here</span>
+                        <span className="block text-xs text-zinc-500 mt-1">or click to browse local files</span>
+                      </div>
+                      <div className="inline-flex items-center space-x-1 text-[9px] text-zinc-500 bg-[#060608] px-2.5 py-0.5 rounded border border-zinc-900 font-mono">
+                        <span>RFC 4180 parsing engine</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col space-y-3 max-w-md mx-auto lg:mx-0">
+                    <button
+                      type="button"
+                      onClick={handleLoadSampleDatasets}
+                      className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-semibold shadow-md shadow-indigo-950/50 transition-all duration-200 cursor-pointer flex items-center justify-center space-x-2 w-full animate-pulse-slow"
+                    >
+                      <svg className="w-3.5 h-3.5 text-zinc-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                      <span>Try with Sample Relational Data</span>
+                    </button>
+                    
+                    <div className="text-[10px] text-zinc-500 font-mono flex items-center justify-center lg:justify-start space-x-1.5">
+                      <svg className="w-3.5 h-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      <span>Zero server logs - 100% processed locally.</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Premium Mockup Window of App SQL Query Generator */}
+                <div className="lg:col-span-7 flex justify-center w-full">
+                  <div className="w-full bg-[#0a0a0c] border border-zinc-900 rounded-xl shadow-2xl overflow-hidden flex flex-col max-w-lg lg:max-w-none shadow-indigo-950/10">
+                    {/* Mock macOS Window Header */}
+                    <div className="px-4 py-3 border-b border-zinc-900 bg-[#0c0c0e] flex items-center justify-between">
+                      <div className="flex items-center space-x-1.5">
+                        <span className="w-3 h-3 rounded-full bg-[#ff5f56]"></span>
+                        <span className="w-3 h-3 rounded-full bg-[#ffbd2e]"></span>
+                        <span className="w-3 h-3 rounded-full bg-[#27c93f]"></span>
+                        <span className="pl-2.5 font-mono text-[10px] text-zinc-500 tracking-wider">GENERATED_QUERY.SQL</span>
+                      </div>
+                      <div className="flex items-center space-x-1.5">
+                        <span className="text-[9px] bg-zinc-900 border border-zinc-800 text-zinc-400 px-2 py-0.5 rounded font-mono">SQLite-compatible</span>
+                      </div>
+                    </div>
+                    {/* Mock SQL Highlight Preview */}
+                    <div className="p-4 bg-[#070708] flex items-center justify-center min-h-[160px]">
+                      <img
+                        src={heroImage}
+                        alt="SQL query preview illustration"
+                        className="rounded border border-zinc-900 max-w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity duration-300 shadow-lg"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+
+              {/* Pulsing scroll-down indicator at bottom center */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center space-y-1 text-zinc-500 font-mono text-[9px] uppercase tracking-wider animate-bounce">
+                <span>Compare Modes</span>
+                <svg className="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </section>
+
+            {/* Page 2: Simple Mode vs Advanced Mode Comparison Section */}
+            <section className="snap-start min-h-[calc(100vh-4rem)] flex-shrink-0 flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 w-full border-t border-zinc-900/40 bg-[#080809]">
+              <div className="w-full max-w-4xl mx-auto text-left">
+                <div className="text-center max-w-2xl mx-auto mb-12">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+                    Compare Workspace Modes
+                  </h2>
+                  <p className="text-xs sm:text-sm text-zinc-400 mt-3 leading-relaxed">
+                    Choose the workspace layout that matches your workflow. Toggle modes anytime in the top header menu.
                   </p>
                 </div>
 
-                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full border border-emerald-950 bg-emerald-950/20 text-emerald-400 text-xs font-mono font-medium shadow-sm">
-                  <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                  <span>100% In-Browser & Private</span>
-                </div>
-
-                <div className="relative border border-zinc-800 hover:border-zinc-700 bg-[#0c0c0e] rounded-xl p-8 transition-all duration-300 max-w-md mx-auto lg:mx-0">
-                  <input
-                    type="file"
-                    multiple
-                    accept=".csv"
-                    onChange={handleFileUpload}
-                    id="csv-file-input"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  <div className="text-center space-y-4">
-                    <div className="w-10 h-10 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto">
-                      <svg className="w-5 h-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                      </svg>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+                  {/* Simple Mode Card */}
+                  <div className="p-6 rounded-xl border border-zinc-900 bg-[#0c0c0e]/30 hover:bg-[#0c0c0e]/60 hover:border-zinc-800 transition-all duration-300 flex flex-col justify-between">
                     <div>
-                      <span className="block text-sm font-semibold text-zinc-200">Drag & drop CSV(s) here</span>
-                      <span className="block text-xs text-zinc-500 mt-1">or click to browse local files</span>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-400">Simple Mode</h3>
+                        <span className="text-[9px] font-bold font-mono px-2 py-0.5 rounded bg-zinc-950 border border-zinc-850 text-emerald-400">PRICE: FREE</span>
+                      </div>
+                      <p className="text-[11px] text-zinc-400 leading-relaxed mb-6">
+                        A clean, visual relational builder designed for quick queries, general table joins, and sequential filters without advanced analytical clutter.
+                      </p>
+                      <ul className="space-y-2.5 text-[10px] text-zinc-350">
+                        <li className="flex items-center space-x-2">
+                          <svg className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Standard SQL select steps (JOIN Tables, SELECT Columns, WHERE Conditions)</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <svg className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Standard Joins: INNER JOIN and LEFT JOIN options</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <svg className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Standard sequential filter rules with OR groups support</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <svg className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Instant client-side CSV export and interactive results preview</span>
+                        </li>
+                      </ul>
                     </div>
-                    <div className="inline-flex items-center space-x-1 text-[9px] text-zinc-500 bg-[#060608] px-2.5 py-0.5 rounded border border-zinc-900 font-mono">
-                      <span>RFC 4180 parsing engine</span>
+                    <div className="mt-8 pt-4 border-t border-zinc-900/60 flex items-center justify-between text-[8px] text-zinc-500 font-mono">
+                      <span>PROCESSING: 100% LOCAL</span>
+                      <span>PRIVACY: SECURE</span>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex flex-col space-y-3 max-w-md mx-auto lg:mx-0">
-                  <button
-                    type="button"
-                    onClick={handleLoadSampleDatasets}
-                    className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-semibold shadow-md shadow-indigo-950/50 transition-all duration-200 cursor-pointer flex items-center justify-center space-x-2 w-full animate-pulse-slow"
-                  >
-                    <svg className="w-3.5 h-3.5 text-zinc-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
-                    <span>Try with Sample Relational Data</span>
-                  </button>
-                  
-                  <div className="text-[10px] text-zinc-500 font-mono flex items-center justify-center lg:justify-start space-x-1.5">
-                    <svg className="w-3.5 h-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                    <span>Zero server logs - 100% processed locally.</span>
+                  {/* Advanced Mode Card */}
+                  <div className="p-6 rounded-xl border border-indigo-950/60 bg-indigo-950/5 hover:bg-indigo-950/10 hover:border-indigo-900/50 transition-all duration-300 flex flex-col justify-between shadow-lg shadow-indigo-950/5">
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-amber-400">Advanced Mode</h3>
+                        <span className="text-[9px] font-bold font-mono px-2 py-0.5 rounded bg-zinc-950 border border-zinc-850 text-emerald-400">PRICE: FREE</span>
+                      </div>
+                      <p className="text-[11px] text-zinc-400 leading-relaxed mb-6">
+                        Unlocks visual database diagrams, query presets, aggregations, aliases, and robust group-by analytics for power users.
+                      </p>
+                      <ul className="space-y-2.5 text-[10px] text-zinc-350">
+                        <li className="flex items-center space-x-2">
+                          <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span><strong>Interactive ERD Map:</strong> Real-time visual table connections and relations</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span><strong>SQL Aggregates & Aliases:</strong> COUNT, SUM, AVG, MIN, MAX & custom AS labels</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span><strong>Expanded Joins:</strong> RIGHT JOIN and FULL OUTER JOIN capabilities</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span><strong>Query Presets:</strong> Persist and reload multi-step queries in LocalStorage</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span><strong>GROUP BY Analytics:</strong> Summarize results over matching categories</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="mt-8 pt-4 border-t border-zinc-900/60 flex items-center justify-between text-[8px] text-zinc-500 font-mono">
+                      <span>PROCESSING: 100% LOCAL</span>
+                      <span>PRIVACY: SECURE</span>
+                    </div>
                   </div>
                 </div>
               </div>
+            </section>
 
-              {/* Right Column: Premium Mockup Window of App SQL Query Generator */}
-              <div className="lg:col-span-7 flex justify-center w-full">
-                <div className="w-full bg-[#0a0a0c] border border-zinc-900 rounded-xl shadow-2xl overflow-hidden flex flex-col max-w-lg lg:max-w-none shadow-indigo-950/10">
-                  {/* Mock macOS Window Header */}
-                  <div className="px-4 py-3 border-b border-zinc-900 bg-[#0c0c0e] flex items-center justify-between">
-                    <div className="flex items-center space-x-1.5">
-                      <span className="w-3 h-3 rounded-full bg-[#ff5f56]"></span>
-                      <span className="w-3 h-3 rounded-full bg-[#ffbd2e]"></span>
-                      <span className="w-3 h-3 rounded-full bg-[#27c93f]"></span>
-                      <span className="pl-2.5 font-mono text-[10px] text-zinc-500 tracking-wider">GENERATED_QUERY.SQL</span>
-                    </div>
-                    <div className="flex items-center space-x-1.5">
-                      <span className="text-[9px] bg-zinc-900 border border-zinc-800 text-zinc-400 px-2 py-0.5 rounded font-mono">SQLite-compatible</span>
-                    </div>
-                  </div>
-                  {/* Mock SQL Highlight Preview */}
-                  <div className="p-4 bg-[#070708] flex items-center justify-center min-h-[160px]">
-                    <img
-                      src={heroImage}
-                      alt="SQL query preview illustration"
-                      className="rounded border border-zinc-900 max-w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity duration-300 shadow-lg"
-                    />
-                  </div>
-                </div>
-              </div>
-
-            </div>
           </div>
         ) : (
           /* 2. SQL Generator Workspace (Independent scrolls on large screens) */
-          <div className="flex-grow w-full max-w-none flex-1 flex flex-col min-h-0">
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full min-h-0 lg:h-[calc(100vh-4rem)] lg:overflow-hidden px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex-grow w-full max-w-none flex-1 flex flex-col min-h-0 lg:overflow-hidden">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full min-h-0 lg:h-full lg:overflow-hidden px-4 sm:px-6 lg:px-8 py-6">
               
               {/* Left Panel: Table Manager, Steps Wizard + CSV Previews (Scrollable Column) */}
               <div className="lg:col-span-6 space-y-6 lg:h-full lg:overflow-y-auto lg:pr-4 pb-6 scrollbar-thin flex flex-col justify-between min-h-0 text-left">
@@ -650,15 +1034,29 @@ function App() {
                     handleRemoveFile={handleRemoveFile}
                     handleFileUpload={handleFileUpload}
                     joinConfig={joinConfig}
+                    presets={presets}
+                    handleSavePreset={handleSavePreset}
+                    handleLoadPreset={handleLoadPreset}
+                    handleDeletePreset={handleDeletePreset}
+                    isAdvancedMode={isAdvancedMode}
                   />
+
+                  {isAdvancedMode && (
+                    <SchemaVisualizer
+                      files={files}
+                      activeFile={activeFile}
+                      secondaryFile={secondaryFile}
+                      joinConfig={joinConfig}
+                    />
+                  )}
                   
                   <WizardProgress wizardStep={wizardStep} />
 
                   <div className="space-y-4">
                     {[1, 2, 3].map((stepIndex) => {
                       let title = '';
-                      if (stepIndex === 1) title = 'Step 1: SELECT Columns';
-                      if (stepIndex === 2) title = 'Step 2: JOIN Tables (Optional)';
+                      if (stepIndex === 1) title = 'Step 1: JOIN Tables (Optional)';
+                      if (stepIndex === 2) title = 'Step 2: SELECT Columns';
                       if (stepIndex === 3) title = 'Step 3: WHERE Conditions';
 
                       return (
@@ -671,6 +1069,18 @@ function App() {
                           summary={renderStepSummary(stepIndex)}
                         >
                           {stepIndex === 1 && (
+                            <JoinTablesStep
+                              joinConfig={joinConfig}
+                              setJoinConfig={setJoinConfig}
+                              files={files}
+                              activeFileId={activeFileId}
+                              activeFile={activeFile}
+                              secondaryFile={secondaryFile}
+                              isAdvancedMode={isAdvancedMode}
+                            />
+                          )}
+
+                          {stepIndex === 2 && (
                             <SelectColumnsStep
                               searchColumnQuery={searchColumnQuery}
                               setSearchColumnQuery={setSearchColumnQuery}
@@ -680,17 +1090,9 @@ function App() {
                               queryConfig={queryConfig}
                               joinedData={joinedData}
                               handleToggleColumn={handleToggleColumn}
-                            />
-                          )}
-
-                          {stepIndex === 2 && (
-                            <JoinTablesStep
-                              joinConfig={joinConfig}
-                              setJoinConfig={setJoinConfig}
-                              files={files}
-                              activeFileId={activeFileId}
-                              activeFile={activeFile}
-                              secondaryFile={secondaryFile}
+                              handleUpdateColumnAggregate={handleUpdateColumnAggregate}
+                              handleUpdateColumnAlias={handleUpdateColumnAlias}
+                              isAdvancedMode={isAdvancedMode}
                             />
                           )}
 
@@ -698,9 +1100,13 @@ function App() {
                             <WhereConditionsStep
                               queryConfig={queryConfig}
                               joinedData={joinedData}
-                              handleConditionChange={handleConditionChange}
-                              handleRemoveCondition={handleRemoveCondition}
-                              handleAddCondition={handleAddCondition}
+                              handleAddGroup={handleAddFilterGroup}
+                              handleRemoveGroup={handleRemoveFilterGroup}
+                              handleGroupLogicChange={handleGroupLogicChange}
+                              handleGroupConjunctionChange={handleGroupConjunctionChange}
+                              handleAddRule={handleAddRuleToGroup}
+                              handleRemoveRule={handleRemoveRuleFromGroup}
+                              handleRuleChange={handleRuleChange}
                             />
                           )}
 
@@ -776,6 +1182,9 @@ function App() {
                   handleCopySQL={handleCopySQL}
                   handleDownloadSQL={handleDownloadSQL}
                   copySuccess={copySuccess}
+                  isAdvancedMode={isAdvancedMode}
+                  setIsAdvancedMode={setIsAdvancedMode}
+                  hasAdvancedConfigs={hasAdvancedConfigs}
                 />
                 
                 <ResultsTable
@@ -785,6 +1194,7 @@ function App() {
                   joinedData={joinedData}
                   showGroupByWarning={showGroupByWarning}
                   nonGroupedColumns={nonGroupedColumns}
+                  isAdvancedMode={isAdvancedMode}
                 />
               </div>
 

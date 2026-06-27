@@ -138,6 +138,9 @@ export function generateSQL({
 
       const conjunction = group.conjunction || 'AND';
       const prefix = groupIdx > 0 ? `\n  ${conjunction} ` : '';
+      if (group.rules.length === 1) {
+        return `${prefix}${ruleStrings[0]}`;
+      }
       return `${prefix}(${innerSQL})`;
     });
     sql += groupStrings.join('');

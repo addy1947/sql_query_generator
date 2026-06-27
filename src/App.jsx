@@ -29,6 +29,25 @@ const SAMPLE_DEPARTMENTS = `dept_id,dept_name,location
 3,Marketing,Paris
 4,HR,Tokyo`;
 
+const migrateConditions = (conditions) => {
+  if (!conditions || !Array.isArray(conditions)) return [];
+  if (conditions.length === 0) return [];
+  if (conditions[0].rules !== undefined) return conditions;
+  return conditions.map((cond, idx) => ({
+    id: `migrated-group-${cond.id || idx}`,
+    conjunction: cond.conjunction || 'AND',
+    logic: 'AND',
+    rules: [
+      {
+        id: cond.id || `migrated-rule-${idx}`,
+        column: cond.column || '',
+        operator: cond.operator || '=',
+        value: cond.value || ''
+      }
+    ]
+  }));
+};
+
 function App() {
   // ----------------------------------------------------
   // State
@@ -74,6 +93,7 @@ function App() {
     const hasGrpBy = !!queryConfig.groupBy;
     return hasAggs || hasAliases || hasRightFullJoin || hasGrpBy;
   }, [queryConfig, joinConfig]);
+
 
   // Preset Query Saving / Loading
   const [presets, setPresets] = useState(() => {
@@ -528,25 +548,6 @@ function App() {
       h.toLowerCase().includes(searchColumnQuery.toLowerCase())
     );
   }, [joinedData.headers, searchColumnQuery]);
-
-  const migrateConditions = (conditions) => {
-    if (!conditions || !Array.isArray(conditions)) return [];
-    if (conditions.length === 0) return [];
-    if (conditions[0].rules !== undefined) return conditions;
-    return conditions.map((cond, idx) => ({
-      id: `migrated-group-${cond.id || idx}`,
-      conjunction: cond.conjunction || 'AND',
-      logic: 'AND',
-      rules: [
-        {
-          id: cond.id || `migrated-rule-${idx}`,
-          column: cond.column || '',
-          operator: cond.operator || '=',
-          value: cond.value || ''
-        }
-      ]
-    }));
-  };
 
   // ----------------------------------------------------
   // Condition Handlers (Step 3) - Filter Groups System
@@ -1106,6 +1107,7 @@ function App() {
                               handleAddRule={handleAddRuleToGroup}
                               handleRemoveRule={handleRemoveRuleFromGroup}
                               handleRuleChange={handleRuleChange}
+                              isAdvancedMode={isAdvancedMode}
                             />
                           )}
 

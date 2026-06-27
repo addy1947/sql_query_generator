@@ -37,10 +37,10 @@ function App() {
   const [activeFileId, setActiveFileId] = useState('');
   const [error, setError] = useState('');
   const [searchColumnQuery, setSearchColumnQuery] = useState('');
-  
+
   // Wizard active step (1 to 3)
   const [wizardStep, setWizardStep] = useState(1);
-  
+
   // Table join config
   const [joinConfig, setJoinConfig] = useState({
     enabled: false,
@@ -137,11 +137,11 @@ function App() {
       return { headers: [], rows: [], columnTypes: {} };
     }
 
-    const isJoinConfigured = 
-      joinConfig.enabled && 
-      joinConfig.tableId && 
+    const isJoinConfigured =
+      joinConfig.enabled &&
+      joinConfig.tableId &&
       secondaryFile &&
-      joinConfig.leftKey && 
+      joinConfig.leftKey &&
       joinConfig.rightKey;
 
     if (!isJoinConfigured) {
@@ -155,7 +155,7 @@ function App() {
     const leftKey = joinConfig.leftKey;
     const rightKey = joinConfig.rightKey;
     const joinType = joinConfig.type;
-    
+
     const primaryPrefix = activeFile.nameWithoutExt;
     const secondaryPrefix = secondaryFile.nameWithoutExt;
 
@@ -251,7 +251,7 @@ function App() {
 
     setQueryConfig(prev => {
       const validSelects = prev.selectColumns.filter(col => joinedData.headers.includes(col));
-      
+
       const validConditions = prev.conditions.map(cond => {
         if (!joinedData.headers.includes(cond.column)) {
           return { ...cond, column: joinedData.headers[0] || '', value: '' };
@@ -404,7 +404,7 @@ function App() {
 
       setFiles([parsedEmployees, parsedDepartments]);
       setActiveFileId(parsedEmployees.id);
-      
+
       setJoinConfig({
         enabled: true,
         type: 'INNER JOIN',
@@ -524,7 +524,7 @@ function App() {
   };
 
   const filteredHeaders = useMemo(() => {
-    return joinedData.headers.filter(h => 
+    return joinedData.headers.filter(h =>
       h.toLowerCase().includes(searchColumnQuery.toLowerCase())
     );
   }, [joinedData.headers, searchColumnQuery]);
@@ -589,7 +589,7 @@ function App() {
       const currentGroups = migrateConditions(prev.conditions);
       return {
         ...prev,
-        conditions: currentGroups.map(g => 
+        conditions: currentGroups.map(g =>
           g.id === groupId ? { ...g, logic } : g
         )
       };
@@ -601,7 +601,7 @@ function App() {
       const currentGroups = migrateConditions(prev.conditions);
       return {
         ...prev,
-        conditions: currentGroups.map(g => 
+        conditions: currentGroups.map(g =>
           g.id === groupId ? { ...g, conjunction } : g
         )
       };
@@ -663,7 +663,7 @@ function App() {
           if (g.id === groupId) {
             return {
               ...g,
-              rules: g.rules.map(r => 
+              rules: g.rules.map(r =>
                 r.id === ruleId ? { ...r, [field]: val } : r
               )
             };
@@ -709,7 +709,7 @@ function App() {
       case 3: {
         const groups = migrateConditions(queryConfig.conditions);
         const activeGroups = groups.map(g => {
-          const validRules = g.rules.filter(r => 
+          const validRules = g.rules.filter(r =>
             r.column && (r.operator === 'IS NULL' || r.operator === 'IS NOT NULL' || (r.value !== undefined && r.value !== null && r.value.trim() !== ''))
           );
           return { ...g, rules: validRules };
@@ -743,20 +743,19 @@ function App() {
               </svg>
             </div>
             <div>
-              <span className="font-semibold text-sm tracking-tight text-white block">SQL builder</span>
+              <span className="font-semibold text-sm tracking-tight text-white block">NexGenQuery</span>
               <span className="text-[9px] text-zinc-400 uppercase tracking-widest block font-medium">In-Browser Relational Engine</span>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-3">
             {/* Switch to Advanced Mode Toggle */}
             <button
               onClick={() => setIsAdvancedMode(!isAdvancedMode)}
-              className={`text-xs px-3.5 py-1.5 rounded-lg border font-semibold transition-all duration-200 flex items-center space-x-2 cursor-pointer shadow-sm ${
-                isAdvancedMode
+              className={`text-xs px-3.5 py-1.5 rounded-lg border font-semibold transition-all duration-200 flex items-center space-x-2 cursor-pointer shadow-sm ${isAdvancedMode
                   ? 'bg-indigo-650 hover:bg-indigo-600 border-indigo-550 text-white shadow-indigo-950/20'
                   : 'bg-zinc-900 hover:bg-zinc-800 border-zinc-800 text-zinc-300'
-              }`}
+                }`}
             >
               <svg className={`w-3.5 h-3.5 transition-transform duration-300 ${isAdvancedMode ? 'rotate-180 text-white' : 'text-zinc-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -770,7 +769,7 @@ function App() {
               </svg>
               <span>100% Client-Side</span>
             </div>
-            
+
             {files.length > 0 && (
               <button
                 onClick={handleReset}
@@ -804,16 +803,16 @@ function App() {
         {files.length === 0 ? (
           /* Empty Upload State (Scroll Snap Pages) */
           <div className="flex-grow w-full overflow-y-auto snap-y snap-mandatory scroll-smooth h-[calc(100vh-4rem)] scrollbar-none bg-[#070708]">
-            
+
             {/* Page 1: Main Upload & Mockup Section */}
             <section className="snap-start min-h-[calc(100vh-4rem)] flex-shrink-0 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 w-full relative">
               <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center text-center lg:text-left">
-                
+
                 {/* Left Column: Title, Tagline, Upload Box, and Sample Trigger */}
                 <div className="lg:col-span-5 space-y-6">
                   <div>
                     <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-400">
-                      SQL Query Builder
+                      NexGenQuery
                     </h1>
                     <p className="mt-3 text-zinc-400 text-sm leading-relaxed max-w-md mx-auto lg:mx-0">
                       Upload one or more CSV files, configure joins, build query rules visually, and execute them instantly in your browser.
@@ -863,7 +862,7 @@ function App() {
                       </svg>
                       <span>Try with Sample Relational Data</span>
                     </button>
-                    
+
                     <div className="text-[10px] text-zinc-500 font-mono flex items-center justify-center lg:justify-start space-x-1.5">
                       <svg className="w-3.5 h-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -873,7 +872,7 @@ function App() {
                   </div>
                 </div>
 
-                {/* Right Column: Premium Mockup Window of App SQL Query Generator */}
+                {/* Right Column: Premium Mockup Window of App NexGenQuery */}
                 <div className="lg:col-span-7 flex justify-center w-full">
                   <div className="w-full bg-[#0a0a0c] border border-zinc-900 rounded-xl shadow-2xl overflow-hidden flex flex-col max-w-lg lg:max-w-none shadow-indigo-950/10">
                     {/* Mock macOS Window Header */}
@@ -898,7 +897,7 @@ function App() {
                     </div>
                   </div>
                 </div>
-                
+
               </div>
 
               {/* Pulsing scroll-down indicator at bottom center */}
@@ -1023,7 +1022,7 @@ function App() {
           /* 2. SQL Generator Workspace (Independent scrolls on large screens) */
           <div className="flex-grow w-full max-w-none flex-1 flex flex-col min-h-0 lg:overflow-hidden">
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full min-h-0 lg:h-full lg:overflow-hidden px-4 sm:px-6 lg:px-8 py-6">
-              
+
               {/* Left Panel: Table Manager, Steps Wizard + CSV Previews (Scrollable Column) */}
               <div className="lg:col-span-6 space-y-6 lg:h-full lg:overflow-y-auto lg:pr-4 pb-6 scrollbar-thin flex flex-col justify-between min-h-0 text-left">
                 <div className="space-y-6 flex-grow">
@@ -1049,7 +1048,7 @@ function App() {
                       joinConfig={joinConfig}
                     />
                   )}
-                  
+
                   <WizardProgress wizardStep={wizardStep} />
 
                   <div className="space-y-4">
@@ -1116,11 +1115,10 @@ function App() {
                               type="button"
                               onClick={() => setWizardStep(prev => Math.max(1, prev - 1))}
                               disabled={stepIndex === 1}
-                              className={`px-3 py-1.5 rounded text-[10px] font-semibold transition-all flex items-center space-x-1 cursor-pointer ${
-                                stepIndex === 1
+                              className={`px-3 py-1.5 rounded text-[10px] font-semibold transition-all flex items-center space-x-1 cursor-pointer ${stepIndex === 1
                                   ? 'text-zinc-500 bg-zinc-900/10 cursor-not-allowed border border-zinc-900'
                                   : 'text-zinc-100 bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-900 border border-zinc-700 shadow-sm'
-                              }`}
+                                }`}
                             >
                               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
@@ -1164,7 +1162,7 @@ function App() {
                 <footer className="border-t border-zinc-900 py-6 mt-12 bg-[#070708] rounded-xl px-4 flex-shrink-0">
                   <div className="w-full text-center text-[10px] text-zinc-500 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <div className="font-mono">
-                      &copy; {new Date().getFullYear()} SQL Builder - Zero-dependency & Private
+                      &copy; {new Date().getFullYear()} NexGenQuery - Zero-dependency & Private
                     </div>
                     <div className="flex items-center space-x-3">
                       <span>React + Tailwind CSS v4</span>
@@ -1186,7 +1184,7 @@ function App() {
                   setIsAdvancedMode={setIsAdvancedMode}
                   hasAdvancedConfigs={hasAdvancedConfigs}
                 />
-                
+
                 <ResultsTable
                   queryResults={queryResults}
                   queryConfig={queryConfig}

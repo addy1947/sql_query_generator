@@ -1,4 +1,4 @@
-# SQL Query Generator & Local CSV Executor
+# NexGenQuery
 
 An interactive, premium client-side web application designed to load multiple CSV datasets, visually configure complex relational SQL queries through an intuitive wizard, preview highlighted SQL, execute queries locally in the browser, and export resulting data.
 

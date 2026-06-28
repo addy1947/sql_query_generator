@@ -812,12 +812,7 @@ function App() {
                 {/* Left Column: Title, Tagline, Upload Box, and Sample Trigger */}
                 <div className="lg:col-span-5 space-y-6">
                   <div>
-                    <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-brand-accent-light text-brand-accent text-xs font-semibold shadow-sm border border-brand-accent/15 mb-4 animate-fade-in">
-                      <svg className="w-3.5 h-3.5 text-brand-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4" />
-                      </svg>
-                      <span>AI-Powered Database Queries</span>
-                    </div>
+
                     <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-brand-text-dark leading-tight">
                       AI SQL Query <span className="text-brand-accent block sm:inline">Generator</span>
                     </h1>

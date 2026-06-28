@@ -14,16 +14,16 @@ export default function TableManager({
   isAdvancedMode
 }) {
   return (
-    <div className="bg-[#0a0a0c] border border-zinc-900 rounded-xl p-4 space-y-3.5 shadow-sm text-left">
+    <div className="bg-brand-card border border-brand-border rounded-xl p-4 space-y-3.5 shadow-sm text-left">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <span className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Workspace Tables</span>
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-700 text-zinc-300">
+          <span className="text-xs font-bold text-brand-text-dark uppercase tracking-wider">Workspace Tables</span>
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-brand-primary border border-brand-border text-brand-text-muted">
             {files.length} loaded
           </span>
         </div>
         {/* File Upload Trigger */}
-        <label className="text-[10px] font-semibold text-zinc-100 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-900 border border-zinc-700 transition-all cursor-pointer flex items-center space-x-1 shadow-sm">
+        <label className="text-[10px] font-bold text-white px-3 py-1.5 rounded-lg bg-brand-accent hover:bg-brand-accent-hover transition-all cursor-pointer flex items-center space-x-1 shadow-sm shadow-brand-accent/15">
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
           </svg>
@@ -48,18 +48,18 @@ export default function TableManager({
               onClick={() => setActiveFileId(f.id)}
               className={`p-3 rounded-lg border text-left cursor-pointer transition-all flex flex-col justify-between space-y-2 group relative ${
                 isActiveTable
-                  ? 'border-indigo-500/40 bg-indigo-950/20 shadow-sm shadow-indigo-950/20'
+                  ? 'border-brand-accent/55 bg-brand-accent-light/50 shadow-sm ring-1 ring-brand-accent/15'
                   : isSecondaryTable
-                    ? 'border-amber-500/40 bg-amber-950/20 opacity-90 ring-1 ring-dashed ring-amber-500/25'
-                    : 'border-zinc-800 bg-zinc-900/20 hover:border-zinc-700 hover:bg-zinc-900/45'
+                    ? 'border-brand-text-muted/40 bg-brand-primary opacity-90 ring-1 ring-dashed ring-brand-text-muted/30'
+                    : 'border-brand-border bg-white hover:border-brand-accent/35 hover:bg-brand-accent-light/15'
               }`}
             >
               <div className="flex items-start justify-between">
                 <div className="truncate pr-5 flex-grow">
-                  <span className="block font-semibold text-xs truncate text-zinc-200" title={f.name}>
+                  <span className="block font-semibold text-xs truncate text-brand-text-dark" title={f.name}>
                     {f.name}
                   </span>
-                  <span className="text-[9px] text-zinc-400 font-mono block mt-0.5">
+                  <span className="text-[9px] text-brand-text-muted font-mono block mt-0.5">
                     {f.totalRows} rows &bull; {f.size}
                   </span>
                 </div>
@@ -69,7 +69,7 @@ export default function TableManager({
                     e.stopPropagation();
                     handleRemoveFile(f.id);
                   }}
-                  className="text-zinc-500 hover:text-zinc-200 p-0.5 rounded hover:bg-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity absolute top-2.5 right-2.5 cursor-pointer"
+                  className="text-brand-text-muted hover:text-brand-accent p-0.5 rounded hover:bg-brand-accent-light transition-opacity opacity-0 group-hover:opacity-100 absolute top-2.5 right-2.5 cursor-pointer"
                   title="Remove table"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -79,15 +79,15 @@ export default function TableManager({
               </div>
               <div className="flex items-center space-x-1.5">
                 {isActiveTable ? (
-                  <span className="text-[8px] bg-indigo-600 text-white font-bold uppercase tracking-wider px-2 py-0.5 rounded font-sans shadow-sm">
+                  <span className="text-[8px] bg-brand-accent text-white font-bold uppercase tracking-wider px-2 py-0.5 rounded font-sans shadow-sm">
                     Primary (FROM)
                   </span>
                 ) : isSecondaryTable ? (
-                  <span className="text-[8px] bg-amber-600 text-white font-bold uppercase tracking-wider px-2 py-0.5 rounded font-sans shadow-sm">
+                  <span className="text-[8px] bg-brand-text-muted text-white font-bold uppercase tracking-wider px-2 py-0.5 rounded font-sans shadow-sm">
                     Joined
                   </span>
                 ) : (
-                  <span className="text-[8px] text-zinc-500 hover:text-zinc-350 font-medium uppercase tracking-wider py-0.5 block font-sans">
+                  <span className="text-[8px] text-brand-text-muted hover:text-brand-text-dark font-medium uppercase tracking-wider py-0.5 block font-sans">
                     Click to select as FROM
                   </span>
                 )}
@@ -99,10 +99,10 @@ export default function TableManager({
 
       {/* Saved Query Presets section */}
       {isAdvancedMode && files.length > 0 && (
-        <div className="pt-3.5 border-t border-zinc-900/60 space-y-3">
+        <div className="pt-3.5 border-t border-brand-border space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Saved Query Presets</span>
-            <span className="text-[9px] font-mono text-zinc-500">
+            <span className="text-[10px] font-bold text-brand-text-muted uppercase tracking-wider">Saved Query Presets</span>
+            <span className="text-[9px] font-mono text-brand-text-muted">
               {presets.length} saved
             </span>
           </div>
@@ -113,7 +113,7 @@ export default function TableManager({
               type="text"
               id="new-preset-name"
               placeholder="Query name..."
-              className="flex-grow bg-zinc-900/60 border border-zinc-800 rounded px-2.5 py-1.5 text-[10px] text-white focus:outline-none placeholder:text-zinc-500"
+              className="flex-grow bg-white border border-brand-border rounded px-2.5 py-1.5 text-[10px] text-brand-text-dark focus:outline-none focus:border-brand-accent/50 placeholder:text-brand-text-muted"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   const val = e.target.value;
@@ -132,7 +132,7 @@ export default function TableManager({
                   el.value = '';
                 }
               }}
-              className="px-2.5 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 border border-indigo-700 text-[10px] font-bold text-white transition-all cursor-pointer shadow-sm shadow-indigo-950/20"
+              className="px-2.5 py-1.5 rounded bg-brand-accent hover:bg-brand-accent-hover text-[10px] font-bold text-white transition-all cursor-pointer shadow-sm shadow-brand-accent/15"
             >
               Save Current
             </button>
@@ -144,21 +144,21 @@ export default function TableManager({
               {presets.map((preset) => (
                 <div
                   key={preset.id}
-                  className="p-2 rounded bg-zinc-900/40 border border-zinc-900/80 hover:border-zinc-800/80 flex items-center justify-between transition-all"
+                  className="p-2 rounded bg-brand-primary border border-brand-border hover:border-brand-accent/35 flex items-center justify-between transition-all"
                 >
                   <button
                     onClick={() => handleLoadPreset(preset.id)}
-                    className="flex-grow text-left text-[10px] font-medium text-zinc-300 hover:text-white truncate cursor-pointer"
+                    className="flex-grow text-left text-[10px] font-medium text-brand-text-dark hover:text-brand-accent truncate cursor-pointer"
                     title={`Load query preset: ${preset.name}`}
                   >
                     {preset.name}
                   </button>
                   <button
                     onClick={() => handleDeletePreset(preset.id)}
-                    className="text-zinc-600 hover:text-zinc-400 p-0.5 rounded cursor-pointer transition-colors"
+                    className="text-brand-text-muted hover:text-brand-accent p-1.5 rounded hover:bg-brand-accent-light transition-colors cursor-pointer"
                     title="Delete preset"
                   >
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                   </button>

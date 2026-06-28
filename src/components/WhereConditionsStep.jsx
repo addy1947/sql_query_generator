@@ -33,12 +33,12 @@ export default function WhereConditionsStep({
 
   return (
     <div className="space-y-4">
-      <p className="text-[11px] text-zinc-400 font-medium text-left leading-relaxed">
+      <p className="text-[11px] text-brand-text-muted font-medium text-left leading-relaxed">
         Filter rows using logical rules. Connect each filter with a custom AND or OR operator. Empty query inputs are skipped automatically.
       </p>
 
       {groups.length === 0 ? (
-        <div className="py-8 text-center rounded-xl border border-zinc-900 border-dashed bg-zinc-950/20 text-[10px] text-zinc-500 font-medium">
+        <div className="py-8 text-center rounded-xl border border-brand-border border-dashed bg-brand-primary/50 text-[10px] text-brand-text-muted font-medium">
           No filters applied to this query.
         </div>
       ) : (
@@ -46,41 +46,32 @@ export default function WhereConditionsStep({
           {groups.map((group, idx) => {
             const rule = group.rules[0] || { id: '', column: '', operator: '=', value: '' };
             const hideValueField = rule.operator === 'IS NULL' || rule.operator === 'IS NOT NULL';
-            const isColNumeric = joinedData.columnTypes[rule.column] === 'numeric';
 
             return (
               <div key={group.id} className="space-y-3">
                 {/* Connection Operator (AND / OR) between filter cards */}
                 {idx > 0 && (
                   <div className="flex items-center justify-center space-x-2 py-1 animate-fade-in">
-                    <div className="h-[1px] bg-zinc-900 flex-grow max-w-[60px]"></div>
+                    <div className="h-[1px] bg-brand-border flex-grow max-w-[60px]"></div>
                     <select
                       value={group.conjunction || 'AND'}
                       onChange={(e) => handleGroupConjunctionChange(group.id, e.target.value)}
-                      className="bg-zinc-950 border border-zinc-850 rounded px-2 py-0.5 text-[9px] text-amber-400 font-mono font-bold focus:outline-none cursor-pointer hover:border-zinc-700 transition-colors"
+                      className="bg-brand-accent-light border border-brand-accent/20 rounded-lg px-2 py-0.5 text-[9px] text-brand-accent font-mono font-bold focus:outline-none cursor-pointer hover:border-brand-accent/40 transition-colors"
                     >
                       <option value="AND">AND</option>
                       <option value="OR">OR</option>
                     </select>
-                    <div className="h-[1px] bg-zinc-900 flex-grow max-w-[60px]"></div>
+                    <div className="h-[1px] bg-brand-border flex-grow max-w-[60px]"></div>
                   </div>
                 )}
 
                 {/* Filter Card */}
                 <div
-                  className={`p-3 border border-zinc-900 bg-[#0c0c0e]/30 hover:border-zinc-800 rounded-xl space-y-3 transition-colors text-left animate-slide-down ${
-                    isColNumeric
-                      ? 'border-amber-950/15 bg-amber-950/5'
-                      : 'border-indigo-950/15 bg-indigo-950/5'
-                  }`}
+                  className="p-3 border border-brand-border bg-brand-card hover:border-brand-accent/35 rounded-xl space-y-3 transition-colors text-left animate-slide-down shadow-sm hover:bg-brand-accent-light/5"
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     <span
-                      className={`text-[8px] uppercase font-mono font-bold px-1.5 py-0.5 rounded border flex-shrink-0 ${
-                        isColNumeric
-                          ? 'bg-amber-950/40 border-amber-900/35 text-amber-400'
-                          : 'bg-indigo-950/40 border-indigo-900/35 text-indigo-400'
-                      }`}
+                      className="text-[8px] uppercase font-mono font-bold px-1.5 py-0.5 rounded border border-brand-accent/20 bg-brand-accent-light text-brand-accent flex-shrink-0"
                     >
                       Filter {idx + 1}
                     </span>
@@ -90,7 +81,7 @@ export default function WhereConditionsStep({
                       <select
                         value={rule.column}
                         onChange={(e) => handleRuleChange(group.id, rule.id, 'column', e.target.value)}
-                        className="w-full bg-zinc-900 border border-zinc-850 rounded px-2 py-1 text-[10px] text-zinc-200 focus:outline-none focus:border-zinc-700 cursor-pointer"
+                        className="w-full bg-white border border-brand-border rounded px-2 py-1 text-[10px] text-brand-text-dark focus:outline-none focus:border-brand-accent/50 cursor-pointer"
                       >
                         {joinedData.headers.map((h) => (
                           <option key={h} value={h}>
@@ -105,7 +96,7 @@ export default function WhereConditionsStep({
                       <select
                         value={rule.operator}
                         onChange={(e) => handleRuleChange(group.id, rule.id, 'operator', e.target.value)}
-                        className="w-full bg-zinc-900 border border-zinc-850 rounded px-2 py-1 text-[10px] text-zinc-200 focus:outline-none focus:border-zinc-700 cursor-pointer"
+                        className="w-full bg-white border border-brand-border rounded px-2 py-1 text-[10px] text-brand-text-dark focus:outline-none focus:border-brand-accent/50 cursor-pointer"
                       >
                         <option value="=">=</option>
                         <option value="!=">!=</option>
@@ -126,7 +117,7 @@ export default function WhereConditionsStep({
                     <button
                       type="button"
                       onClick={() => handleRemoveGroup(group.id)}
-                      className="text-zinc-500 hover:text-zinc-350 p-1.5 rounded hover:bg-zinc-900 transition-colors cursor-pointer ml-auto"
+                      className="text-brand-text-muted hover:text-brand-text-dark p-1.5 rounded hover:bg-brand-primary transition-colors cursor-pointer ml-auto"
                       title="Remove filter"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -144,12 +135,12 @@ export default function WhereConditionsStep({
                         onChange={(e) => handleRuleChange(group.id, rule.id, 'value', e.target.value)}
                         placeholder={
                           rule.operator === 'IN' || rule.operator === 'NOT IN'
-                            ? `Comma separated list (e.g. ${isColNumeric ? '10, 20' : 'London, New York'})`
+                            ? `Comma separated list (e.g. ${joinedData.columnTypes[rule.column] === 'numeric' ? '10, 20' : 'London, New York'})`
                             : rule.operator.includes('LIKE')
                               ? "Wildcards e.g. %Manager%"
                               : "Enter target value..."
                         }
-                        className="w-full bg-zinc-900 border border-zinc-850 rounded px-2.5 py-1.5 text-[10px] text-white focus:outline-none focus:border-zinc-700 placeholder:text-zinc-650 font-sans"
+                        className="w-full bg-white border border-brand-border rounded px-2.5 py-1.5 text-[10px] text-brand-text-dark focus:outline-none focus:border-brand-accent/50 placeholder:text-brand-text-muted/65 font-sans"
                       />
                     </div>
                   )}
@@ -164,9 +155,9 @@ export default function WhereConditionsStep({
       <button
         type="button"
         onClick={handleAddGroup}
-        className="w-full py-2.5 rounded bg-zinc-900/60 hover:bg-zinc-800 active:bg-zinc-900 border border-zinc-800 text-[10px] font-bold text-zinc-200 transition-all flex items-center justify-center space-x-1 cursor-pointer shadow-sm shadow-zinc-950/20"
+        className="w-full py-2.5 rounded-lg bg-white hover:bg-brand-primary border border-brand-border text-[10px] font-bold text-brand-text-dark transition-all flex items-center justify-center space-x-1 cursor-pointer shadow-sm hover:border-brand-accent/30"
       >
-        <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-3.5 h-3.5 text-brand-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
         </svg>
         <span>Add Filter</span>

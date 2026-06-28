@@ -733,40 +733,40 @@ function App() {
   };
 
   return (
-    <div className="lg:h-screen lg:overflow-hidden bg-[#070708] text-zinc-200 flex flex-col font-sans selection:bg-zinc-800 selection:text-zinc-100">
-      {/* Top navbar (Full-Screen Width) */}
-      <header className="border-b border-zinc-900 bg-[#0a0a0c]/90 backdrop-blur-md sticky top-0 z-50">
-        <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div className="lg:h-screen lg:overflow-hidden bg-brand-primary text-brand-text-dark flex flex-col font-sans selection:bg-brand-accent/25 selection:text-brand-text-dark">
+      {/* Top navbar (Floating Pill on Light background) */}
+      <header className="w-full px-4 sm:px-6 lg:px-8 py-3 bg-brand-primary z-50 flex justify-center border-b border-brand-border/40">
+        <div className="w-full max-w-6xl px-6 h-14 bg-brand-dark rounded-full flex items-center justify-between shadow-lg text-white">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-md bg-zinc-200 text-zinc-950 flex items-center justify-center font-bold shadow-sm">
+            <div className="w-8 h-8 rounded-lg bg-brand-accent text-white flex items-center justify-center font-bold shadow-sm">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
               </svg>
             </div>
             <div>
-              <span className="font-semibold text-sm tracking-tight text-white block">NexGenQuery</span>
-              <span className="text-[9px] text-zinc-400 uppercase tracking-widest block font-medium">In-Browser Relational Engine</span>
+              <span className="font-semibold text-xs sm:text-sm tracking-tight text-white block leading-none">NexGenQuery</span>
+              <span className="text-[8px] text-zinc-400 uppercase tracking-widest block font-medium mt-1 leading-none">In-Browser Relational Engine</span>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2.5">
             {/* Switch to Advanced Mode Toggle */}
             <button
               onClick={() => setIsAdvancedMode(!isAdvancedMode)}
-              className={`text-xs px-3.5 py-1.5 rounded-lg border font-semibold transition-all duration-200 flex items-center space-x-2 cursor-pointer shadow-sm ${isAdvancedMode
-                  ? 'bg-indigo-650 hover:bg-indigo-600 border-indigo-550 text-white shadow-indigo-950/20'
-                  : 'bg-zinc-900 hover:bg-zinc-800 border-zinc-800 text-zinc-300'
+              className={`text-[10px] px-3.5 py-1.5 rounded-full border font-semibold transition-all duration-200 flex items-center space-x-1.5 cursor-pointer shadow-sm ${isAdvancedMode
+                  ? 'bg-brand-accent hover:bg-brand-accent-hover border-transparent text-white'
+                  : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300'
                 }`}
             >
-              <svg className={`w-3.5 h-3.5 transition-transform duration-300 ${isAdvancedMode ? 'rotate-180 text-white' : 'text-zinc-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className={`w-3 h-3 transition-transform duration-300 ${isAdvancedMode ? 'rotate-180 text-white' : 'text-zinc-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              <span>{isAdvancedMode ? 'Advanced Mode: ON' : 'Switch to Advanced'}</span>
+              <span>{isAdvancedMode ? 'Advanced: ON' : 'Switch Advanced'}</span>
             </button>
 
-            <div className="hidden sm:flex items-center space-x-1.5 text-[10px] font-mono text-emerald-400 border border-emerald-950 bg-emerald-950/20 px-2.5 py-1 rounded-full">
-              <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            <div className="hidden sm:flex items-center space-x-1 text-[9px] font-mono text-emerald-400 border border-emerald-950 bg-emerald-950/20 px-2.5 py-1 rounded-full">
+              <svg className="w-2.5 h-2.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4" />
               </svg>
               <span>100% Client-Side</span>
             </div>
@@ -774,12 +774,12 @@ function App() {
             {files.length > 0 && (
               <button
                 onClick={handleReset}
-                className="text-xs px-3 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-900 border border-zinc-700 text-zinc-100 font-medium transition-all duration-200 flex items-center space-x-1.5 cursor-pointer shadow-sm"
+                className="text-[10px] px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-900 border border-zinc-700 text-zinc-100 font-medium transition-all duration-200 flex items-center space-x-1.5 cursor-pointer shadow-sm"
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                <span>Reset Workspace</span>
+                <span>Reset</span>
               </button>
             )}
           </div>
@@ -790,44 +790,65 @@ function App() {
       <main className="flex-grow w-full max-w-none flex flex-col min-h-0 lg:overflow-hidden">
         {/* Error notification */}
         {error && (
-          <div className="mx-4 sm:mx-6 lg:mx-8 mt-6 p-4 rounded-lg bg-zinc-900/50 border border-zinc-800 text-zinc-100 text-xs whitespace-pre-line flex items-start space-x-3 animate-fade-in">
-            <svg className="w-5 h-5 flex-shrink-0 mt-0.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="mx-4 sm:mx-6 lg:mx-8 mt-6 p-4 rounded-xl bg-brand-card border border-brand-accent/20 text-brand-text-dark text-xs whitespace-pre-line flex items-start space-x-3 shadow-sm animate-fade-in">
+            <svg className="w-5 h-5 flex-shrink-0 mt-0.5 text-brand-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             <div>
-              <span className="font-semibold block text-white">Parser notifications:</span>
-              <p className="leading-relaxed mt-0.5">{error}</p>
+              <span className="font-semibold block text-brand-text-dark">Parser notifications:</span>
+              <p className="leading-relaxed mt-0.5 text-brand-text-muted">{error}</p>
             </div>
           </div>
         )}
 
         {files.length === 0 ? (
           /* Empty Upload State (Scroll Snap Pages) */
-          <div className="flex-grow w-full overflow-y-auto snap-y snap-mandatory scroll-smooth h-[calc(100vh-4rem)] scrollbar-none bg-[#070708]">
+          <div className="flex-grow w-full overflow-y-auto snap-y snap-mandatory scroll-smooth h-[calc(100vh-5rem)] scrollbar-none bg-brand-primary">
 
             {/* Page 1: Main Upload & Mockup Section */}
-            <section className="snap-start min-h-[calc(100vh-4rem)] flex-shrink-0 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 w-full relative">
+            <section className="snap-start min-h-[calc(100vh-5rem)] flex-shrink-0 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 w-full relative">
               <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center text-center lg:text-left">
 
                 {/* Left Column: Title, Tagline, Upload Box, and Sample Trigger */}
                 <div className="lg:col-span-5 space-y-6">
                   <div>
-                    <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-400">
-                      NexGenQuery
+                    <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-brand-accent-light text-brand-accent text-xs font-semibold shadow-sm border border-brand-accent/15 mb-4 animate-fade-in">
+                      <svg className="w-3.5 h-3.5 text-brand-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4" />
+                      </svg>
+                      <span>AI-Powered Database Queries</span>
+                    </div>
+                    <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-brand-text-dark leading-tight">
+                      AI SQL Query <span className="text-brand-accent block sm:inline">Generator</span>
                     </h1>
-                    <p className="mt-3 text-zinc-400 text-sm leading-relaxed max-w-md mx-auto lg:mx-0">
-                      Upload one or more CSV files, configure joins, build query rules visually, and execute them instantly in your browser.
+                    <p className="mt-4 text-brand-text-muted text-sm leading-relaxed max-w-md mx-auto lg:mx-0">
+                      Convert your text instructions into SQL queries or input a query to have it explained. Supports MySQL, PostgreSQL, Supabase, BigQuery, and more.
                     </p>
                   </div>
 
-                  <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full border border-emerald-950 bg-emerald-950/20 text-emerald-400 text-xs font-mono font-medium shadow-sm">
-                    <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                    <span>100% In-Browser & Private</span>
+                  {/* Horizontal Checklist from screenshot */}
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 py-2 text-xs font-medium text-brand-text-muted">
+                    <div className="flex items-center space-x-1.5">
+                      <svg className="w-4 h-4 text-brand-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>100% Free to try</span>
+                    </div>
+                    <div className="flex items-center space-x-1.5">
+                      <svg className="w-4 h-4 text-brand-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>10+ SQL dialects</span>
+                    </div>
+                    <div className="flex items-center space-x-1.5">
+                      <svg className="w-4 h-4 text-brand-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Instant results</span>
+                    </div>
                   </div>
 
-                  <div className="relative border border-zinc-800 hover:border-zinc-700 bg-[#0c0c0e] rounded-xl p-8 transition-all duration-300 max-w-md mx-auto lg:mx-0">
+                  <div className="relative border border-brand-border hover:border-brand-accent/40 bg-brand-card rounded-2xl p-8 transition-all duration-300 max-w-md mx-auto lg:mx-0 shadow-md shadow-brand-border/40 group">
                     <input
                       type="file"
                       multiple
@@ -837,16 +858,16 @@ function App() {
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
                     <div className="text-center space-y-4">
-                      <div className="w-10 h-10 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto">
-                        <svg className="w-5 h-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      <div className="w-11 h-11 rounded-xl bg-brand-primary border border-brand-border flex items-center justify-center mx-auto transition-colors group-hover:bg-brand-accent-light/50">
+                        <svg className="w-5 h-5 text-brand-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
                       </div>
                       <div>
-                        <span className="block text-sm font-semibold text-zinc-200">Drag & drop CSV(s) here</span>
-                        <span className="block text-xs text-zinc-500 mt-1">or click to browse local files</span>
+                        <span className="block text-sm font-semibold text-brand-text-dark">Drag & drop CSV(s) here</span>
+                        <span className="block text-xs text-brand-text-muted mt-1">or click to browse local files</span>
                       </div>
-                      <div className="inline-flex items-center space-x-1 text-[9px] text-zinc-500 bg-[#060608] px-2.5 py-0.5 rounded border border-zinc-900 font-mono">
+                      <div className="inline-flex items-center space-x-1 text-[9px] text-brand-text-muted bg-brand-primary px-2.5 py-0.5 rounded border border-brand-border font-mono">
                         <span>RFC 4180 parsing engine</span>
                       </div>
                     </div>
@@ -856,16 +877,16 @@ function App() {
                     <button
                       type="button"
                       onClick={handleLoadSampleDatasets}
-                      className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-semibold shadow-md shadow-indigo-950/50 transition-all duration-200 cursor-pointer flex items-center justify-center space-x-2 w-full animate-pulse-slow"
+                      className="px-5 py-2.5 rounded-xl bg-brand-accent hover:bg-brand-accent-hover active:bg-brand-accent-hover text-white text-xs font-bold shadow-md shadow-brand-accent/20 transition-all duration-200 cursor-pointer flex items-center justify-center space-x-2 w-full animate-pulse-slow"
                     >
-                      <svg className="w-3.5 h-3.5 text-zinc-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                       </svg>
                       <span>Try with Sample Relational Data</span>
                     </button>
 
-                    <div className="text-[10px] text-zinc-500 font-mono flex items-center justify-center lg:justify-start space-x-1.5">
-                      <svg className="w-3.5 h-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="text-[10px] text-brand-text-muted font-mono flex items-center justify-center lg:justify-start space-x-1.5">
+                      <svg className="w-3.5 h-3.5 text-brand-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
                       <span>Zero server logs - 100% processed locally.</span>
@@ -875,25 +896,25 @@ function App() {
 
                 {/* Right Column: Premium Mockup Window of App NexGenQuery */}
                 <div className="lg:col-span-7 flex justify-center w-full">
-                  <div className="w-full bg-[#0a0a0c] border border-zinc-900 rounded-xl shadow-2xl overflow-hidden flex flex-col max-w-lg lg:max-w-none shadow-indigo-950/10">
+                  <div className="w-full bg-brand-card border border-brand-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-w-lg lg:max-w-none shadow-brand-border/40">
                     {/* Mock macOS Window Header */}
-                    <div className="px-4 py-3 border-b border-zinc-900 bg-[#0c0c0e] flex items-center justify-between">
+                    <div className="px-4 py-3 border-b border-brand-border bg-brand-primary/60 flex items-center justify-between">
                       <div className="flex items-center space-x-1.5">
                         <span className="w-3 h-3 rounded-full bg-[#ff5f56]"></span>
                         <span className="w-3 h-3 rounded-full bg-[#ffbd2e]"></span>
                         <span className="w-3 h-3 rounded-full bg-[#27c93f]"></span>
-                        <span className="pl-2.5 font-mono text-[10px] text-zinc-500 tracking-wider">GENERATED_QUERY.SQL</span>
+                        <span className="pl-2.5 font-mono text-[10px] text-brand-text-muted tracking-wider">GENERATED_QUERY.SQL</span>
                       </div>
                       <div className="flex items-center space-x-1.5">
-                        <span className="text-[9px] bg-zinc-900 border border-zinc-800 text-zinc-400 px-2 py-0.5 rounded font-mono">SQLite-compatible</span>
+                        <span className="text-[9px] bg-brand-primary border border-brand-border text-brand-text-muted px-2 py-0.5 rounded font-mono">SQLite-compatible</span>
                       </div>
                     </div>
                     {/* Mock SQL Highlight Preview */}
-                    <div className="p-4 bg-[#070708] flex items-center justify-center min-h-[160px]">
+                    <div className="p-4 bg-brand-primary/20 flex items-center justify-center min-h-[160px]">
                       <img
                         src={heroImage}
                         alt="SQL query preview illustration"
-                        className="rounded border border-zinc-900 max-w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity duration-300 shadow-lg"
+                        className="rounded border border-brand-border max-w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity duration-300 shadow-md"
                       />
                     </div>
                   </div>
@@ -902,114 +923,114 @@ function App() {
               </div>
 
               {/* Pulsing scroll-down indicator at bottom center */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center space-y-1 text-zinc-500 font-mono text-[9px] uppercase tracking-wider animate-bounce">
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center space-y-1 text-brand-text-muted font-mono text-[9px] uppercase tracking-wider animate-bounce">
                 <span>Compare Modes</span>
-                <svg className="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-3.5 h-3.5 text-brand-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
             </section>
 
             {/* Page 2: Simple Mode vs Advanced Mode Comparison Section */}
-            <section className="snap-start min-h-[calc(100vh-4rem)] flex-shrink-0 flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 w-full border-t border-zinc-900/40 bg-[#080809]">
+            <section className="snap-start min-h-[calc(100vh-5rem)] flex-shrink-0 flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 w-full border-t border-brand-border bg-brand-primary">
               <div className="w-full max-w-4xl mx-auto text-left">
                 <div className="text-center max-w-2xl mx-auto mb-12">
-                  <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-text-dark">
                     Compare Workspace Modes
                   </h2>
-                  <p className="text-xs sm:text-sm text-zinc-400 mt-3 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-brand-text-muted mt-3 leading-relaxed">
                     Choose the workspace layout that matches your workflow. Toggle modes anytime in the top header menu.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
                   {/* Simple Mode Card */}
-                  <div className="p-6 rounded-xl border border-zinc-900 bg-[#0c0c0e]/30 hover:bg-[#0c0c0e]/60 hover:border-zinc-800 transition-all duration-300 flex flex-col justify-between">
+                  <div className="p-6 rounded-xl border border-brand-border bg-brand-card hover:border-brand-accent/40 hover:shadow-md transition-all duration-300 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-400">Simple Mode</h3>
-                        <span className="text-[9px] font-bold font-mono px-2 py-0.5 rounded bg-zinc-950 border border-zinc-850 text-emerald-400">PRICE: FREE</span>
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-brand-text-dark">Simple Mode</h3>
+                        <span className="text-[9px] font-bold font-mono px-2 py-0.5 rounded bg-brand-primary border border-brand-border text-brand-accent">PRICE: FREE</span>
                       </div>
-                      <p className="text-[11px] text-zinc-400 leading-relaxed mb-6">
+                      <p className="text-[11px] text-brand-text-muted leading-relaxed mb-6">
                         A clean, visual relational builder designed for quick queries, general table joins, and sequential filters without advanced analytical clutter.
                       </p>
-                      <ul className="space-y-2.5 text-[10px] text-zinc-350">
+                      <ul className="space-y-2.5 text-[10px] text-brand-text-muted">
                         <li className="flex items-center space-x-2">
-                          <svg className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3.5 h-3.5 text-brand-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                           </svg>
                           <span>Standard SQL select steps (JOIN Tables, SELECT Columns, WHERE Conditions)</span>
                         </li>
                         <li className="flex items-center space-x-2">
-                          <svg className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3.5 h-3.5 text-brand-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                           </svg>
                           <span>Standard Joins: INNER JOIN and LEFT JOIN options</span>
                         </li>
                         <li className="flex items-center space-x-2">
-                          <svg className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3.5 h-3.5 text-brand-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                           </svg>
                           <span>Standard sequential filter rules with OR groups support</span>
                         </li>
                         <li className="flex items-center space-x-2">
-                          <svg className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3.5 h-3.5 text-brand-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                           </svg>
                           <span>Instant client-side CSV export and interactive results preview</span>
                         </li>
                       </ul>
                     </div>
-                    <div className="mt-8 pt-4 border-t border-zinc-900/60 flex items-center justify-between text-[8px] text-zinc-500 font-mono">
+                    <div className="mt-8 pt-4 border-t border-brand-border/60 flex items-center justify-between text-[8px] text-brand-text-muted font-mono">
                       <span>PROCESSING: 100% LOCAL</span>
                       <span>PRIVACY: SECURE</span>
                     </div>
                   </div>
 
                   {/* Advanced Mode Card */}
-                  <div className="p-6 rounded-xl border border-indigo-950/60 bg-indigo-950/5 hover:bg-indigo-950/10 hover:border-indigo-900/50 transition-all duration-300 flex flex-col justify-between shadow-lg shadow-indigo-950/5">
+                  <div className="p-6 rounded-xl border border-brand-accent/20 bg-brand-accent-light/20 hover:bg-brand-accent-light/35 hover:border-brand-accent/40 transition-all duration-300 flex flex-col justify-between shadow-sm">
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-amber-400">Advanced Mode</h3>
-                        <span className="text-[9px] font-bold font-mono px-2 py-0.5 rounded bg-zinc-950 border border-zinc-850 text-emerald-400">PRICE: FREE</span>
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-brand-accent">Advanced Mode</h3>
+                        <span className="text-[9px] font-bold font-mono px-2 py-0.5 rounded bg-brand-primary border border-brand-border text-brand-accent">PRICE: FREE</span>
                       </div>
-                      <p className="text-[11px] text-zinc-400 leading-relaxed mb-6">
+                      <p className="text-[11px] text-brand-text-muted leading-relaxed mb-6">
                         Unlocks visual database diagrams, query presets, aggregations, aliases, and robust group-by analytics for power users.
                       </p>
-                      <ul className="space-y-2.5 text-[10px] text-zinc-350">
+                      <ul className="space-y-2.5 text-[10px] text-brand-text-muted">
                         <li className="flex items-center space-x-2">
-                          <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3.5 h-3.5 text-brand-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                           </svg>
                           <span><strong>Interactive ERD Map:</strong> Real-time visual table connections and relations</span>
                         </li>
                         <li className="flex items-center space-x-2">
-                          <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3.5 h-3.5 text-brand-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                           </svg>
                           <span><strong>SQL Aggregates & Aliases:</strong> COUNT, SUM, AVG, MIN, MAX & custom AS labels</span>
                         </li>
                         <li className="flex items-center space-x-2">
-                          <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3.5 h-3.5 text-brand-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                           </svg>
                           <span><strong>Expanded Joins:</strong> RIGHT JOIN and FULL OUTER JOIN capabilities</span>
                         </li>
                         <li className="flex items-center space-x-2">
-                          <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3.5 h-3.5 text-brand-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                           </svg>
                           <span><strong>Query Presets:</strong> Persist and reload multi-step queries in LocalStorage</span>
                         </li>
                         <li className="flex items-center space-x-2">
-                          <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3.5 h-3.5 text-brand-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                           </svg>
                           <span><strong>GROUP BY Analytics:</strong> Summarize results over matching categories</span>
                         </li>
                       </ul>
                     </div>
-                    <div className="mt-8 pt-4 border-t border-zinc-900/60 flex items-center justify-between text-[8px] text-zinc-500 font-mono">
+                    <div className="mt-8 pt-4 border-t border-brand-border/60 flex items-center justify-between text-[8px] text-brand-text-muted font-mono">
                       <span>PROCESSING: 100% LOCAL</span>
                       <span>PRIVACY: SECURE</span>
                     </div>
@@ -1021,7 +1042,7 @@ function App() {
           </div>
         ) : (
           /* 2. SQL Generator Workspace (Independent scrolls on large screens) */
-          <div className="flex-grow w-full max-w-none flex-1 flex flex-col min-h-0 lg:overflow-hidden">
+          <div className="flex-grow w-full max-w-none flex-1 flex flex-col min-h-0 lg:overflow-hidden bg-brand-primary">
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full min-h-0 lg:h-full lg:overflow-hidden px-4 sm:px-6 lg:px-8 py-6">
 
               {/* Left Panel: Table Manager, Steps Wizard + CSV Previews (Scrollable Column) */}
@@ -1112,14 +1133,14 @@ function App() {
                           )}
 
                           {/* Footer Action Buttons inside Active Card */}
-                          <div className="pt-3 border-t border-zinc-900 flex items-center justify-between">
+                          <div className="pt-3 border-t border-brand-border flex items-center justify-between">
                             <button
                               type="button"
                               onClick={() => setWizardStep(prev => Math.max(1, prev - 1))}
                               disabled={stepIndex === 1}
-                              className={`px-3 py-1.5 rounded text-[10px] font-semibold transition-all flex items-center space-x-1 cursor-pointer ${stepIndex === 1
-                                  ? 'text-zinc-500 bg-zinc-900/10 cursor-not-allowed border border-zinc-900'
-                                  : 'text-zinc-100 bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-900 border border-zinc-700 shadow-sm'
+                              className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold transition-all flex items-center space-x-1 cursor-pointer ${stepIndex === 1
+                                  ? 'text-brand-text-muted bg-brand-primary/50 cursor-not-allowed border border-brand-border/60'
+                                  : 'text-brand-text-dark bg-white hover:bg-brand-primary border border-brand-border shadow-sm'
                                 }`}
                             >
                               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1132,7 +1153,7 @@ function App() {
                               <button
                                 type="button"
                                 onClick={() => setWizardStep(prev => Math.min(3, prev + 1))}
-                                className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-[10px] font-bold shadow-sm shadow-indigo-900/25 flex items-center space-x-1 cursor-pointer transition-all"
+                                className="px-4 py-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover active:bg-brand-accent-hover text-white text-[10px] font-bold shadow-sm shadow-brand-accent/15 flex items-center space-x-1 cursor-pointer transition-all"
                               >
                                 <span>Continue</span>
                                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1140,8 +1161,8 @@ function App() {
                                 </svg>
                               </button>
                             ) : (
-                              <div className="flex items-center space-x-1.5 text-zinc-400 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded text-[10px] font-semibold">
-                                <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <div className="flex items-center space-x-1.5 text-brand-accent bg-brand-accent-light border border-brand-accent/20 px-3 py-1.5 rounded-lg text-[10px] font-semibold">
+                                <svg className="w-3.5 h-3.5 text-brand-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span>Wizard Complete</span>
@@ -1161,14 +1182,14 @@ function App() {
                 </div>
 
                 {/* Left Panel Inner Footer */}
-                <footer className="border-t border-zinc-900 py-6 mt-12 bg-[#070708] rounded-xl px-4 flex-shrink-0">
-                  <div className="w-full text-center text-[10px] text-zinc-500 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <footer className="border border-brand-border py-6 mt-12 bg-brand-card rounded-xl px-4 flex-shrink-0 shadow-sm">
+                  <div className="w-full text-center text-[10px] text-brand-text-muted flex flex-col sm:flex-row items-center justify-between gap-3">
                     <div className="font-mono">
                       &copy; {new Date().getFullYear()} NexGenQuery - Zero-dependency & Private
                     </div>
                     <div className="flex items-center space-x-3">
                       <span>React + Tailwind CSS v4</span>
-                      <span className="text-zinc-800">|</span>
+                      <span className="text-brand-border">|</span>
                       <span>Local sandbox environment</span>
                     </div>
                   </div>

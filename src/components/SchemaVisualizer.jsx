@@ -43,18 +43,18 @@ export default function SchemaVisualizer({
   const midY = (leftPortY + rightPortY) / 2;
 
   return (
-    <div className="bg-[#0a0a0c] border border-zinc-900 rounded-xl overflow-hidden shadow-sm flex flex-col text-left">
+    <div className="bg-brand-card border border-brand-border rounded-xl overflow-hidden shadow-sm flex flex-col text-left">
       <div 
         onClick={() => setIsExpanded(!isExpanded)}
-        className="p-4 bg-[#0c0c0e] border-b border-zinc-900 flex items-center justify-between cursor-pointer select-none"
+        className="p-4 bg-brand-primary/60 border-b border-brand-border flex items-center justify-between cursor-pointer select-none"
       >
         <div className="flex items-center space-x-2">
-          <svg className="w-4 h-4 text-indigo-405" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 text-brand-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
-          <span className="font-semibold text-xs text-zinc-300 uppercase tracking-wider">Workspace Schema Map (ERD)</span>
+          <span className="font-semibold text-xs text-brand-text-dark uppercase tracking-wider">Workspace Schema Map (ERD)</span>
         </div>
-        <button className="text-zinc-500 hover:text-zinc-300 cursor-pointer">
+        <button className="text-brand-text-muted hover:text-brand-text-dark cursor-pointer">
           {isExpanded ? (
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 15l7-7 7 7" />
@@ -68,7 +68,7 @@ export default function SchemaVisualizer({
       </div>
 
       {isExpanded && (
-        <div className="p-4 bg-[#070708] flex justify-center items-center overflow-x-auto">
+        <div className="p-4 bg-white flex justify-center items-center overflow-x-auto">
           <svg width="500" height={svgH} viewBox={`0 0 500 ${svgH}`} className="min-w-[500px]">
             <defs>
               <style>{`
@@ -91,13 +91,13 @@ export default function SchemaVisualizer({
             {/* 1. PRIMARY TABLE CARD */}
             <g transform={`translate(${pCardX}, ${cardY})`}>
               {/* Card Container */}
-              <rect width={cardW} height={cardH1} rx="8" fill="#0a0a0c" stroke="#1f1f23" strokeWidth="1.5" />
+              <rect width={cardW} height={cardH1} rx="8" fill="#ffffff" stroke="#E6E1DA" strokeWidth="1.5" />
               {/* Card Header */}
-              <path d={`M 0 8 A 8 8 0 0 1 8 0 H ${cardW - 8} A 8 8 0 0 1 ${cardW} 8 V 30 H 0 Z`} fill="#0e0e11" />
-              <text x={cardW / 2} y="18" fill="#e4e4e7" fontSize="10" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
+              <path d={`M 0 8 A 8 8 0 0 1 8 0 H ${cardW - 8} A 8 8 0 0 1 ${cardW} 8 V 30 H 0 Z`} fill="#FAF6F0" />
+              <text x={cardW / 2} y="18" fill="#1C1917" fontSize="10" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
                 {pTable}
               </text>
-              <line x1="0" y1="30" x2={cardW} y2="30" stroke="#1f1f23" strokeWidth="1" />
+              <line x1="0" y1="30" x2={cardW} y2="30" stroke="#E6E1DA" strokeWidth="1" />
 
               {/* Rows */}
               {pHeaders.map((h, i) => {
@@ -106,11 +106,11 @@ export default function SchemaVisualizer({
                 const rowY = 30 + i * 20;
                 return (
                   <g key={h} transform={`translate(0, ${rowY})`}>
-                    <rect width={cardW} height="20" rx="4" fill={isJoinKey ? '#6366f115' : 'transparent'} />
+                    <rect width={cardW} height="20" rx="4" fill={isJoinKey ? '#FBEBE3' : 'transparent'} />
                     {/* Circle Icon */}
-                    <circle cx="15" cy="11" r="3.5" fill={isNumeric ? '#f59e0b' : '#6366f1'} />
+                    <circle cx="15" cy="11" r="3.5" fill={isNumeric ? '#D27B55' : '#78716C'} />
                     {/* Column Name */}
-                    <text x="26" y="14" fill={isJoinKey ? '#818cf8' : '#a1a1aa'} fontSize="9" fontFamily="monospace" fontWeight={isJoinKey ? 'bold' : 'normal'}>
+                    <text x="26" y="14" fill={isJoinKey ? '#D27B55' : '#57534E'} fontSize="9" fontFamily="monospace" fontWeight={isJoinKey ? 'bold' : 'normal'}>
                       {h}
                     </text>
                   </g>
@@ -122,13 +122,13 @@ export default function SchemaVisualizer({
             {secondaryFile && (
               <g transform={`translate(${sCardX}, ${cardY})`}>
                 {/* Card Container */}
-                <rect width={cardW} height={cardH2} rx="8" fill="#0a0a0c" stroke="#1f1f23" strokeWidth="1.5" />
+                <rect width={cardW} height={cardH2} rx="8" fill="#ffffff" stroke="#E6E1DA" strokeWidth="1.5" />
                 {/* Card Header */}
-                <path d={`M 0 8 A 8 8 0 0 1 8 0 H ${cardW - 8} A 8 8 0 0 1 ${cardW} 8 V 30 H 0 Z`} fill="#0e0e11" />
-                <text x={cardW / 2} y="18" fill="#e4e4e7" fontSize="10" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
+                <path d={`M 0 8 A 8 8 0 0 1 8 0 H ${cardW - 8} A 8 8 0 0 1 ${cardW} 8 V 30 H 0 Z`} fill="#FAF6F0" />
+                <text x={cardW / 2} y="18" fill="#1C1917" fontSize="10" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
                   {sTable}
                 </text>
-                <line x1="0" y1="30" x2={cardW} y2="30" stroke="#1f1f23" strokeWidth="1" />
+                <line x1="0" y1="30" x2={cardW} y2="30" stroke="#E6E1DA" strokeWidth="1" />
 
                 {/* Rows */}
                 {sHeaders.map((h, i) => {
@@ -137,11 +137,11 @@ export default function SchemaVisualizer({
                   const rowY = 30 + i * 20;
                   return (
                     <g key={h} transform={`translate(0, ${rowY})`}>
-                      <rect width={cardW} height="20" rx="4" fill={isJoinKey ? '#f59e0b15' : 'transparent'} />
+                      <rect width={cardW} height="20" rx="4" fill={isJoinKey ? '#FBEBE3' : 'transparent'} />
                       {/* Circle Icon */}
-                      <circle cx="15" cy="11" r="3.5" fill={isNumeric ? '#f59e0b' : '#6366f1'} />
+                      <circle cx="15" cy="11" r="3.5" fill={isNumeric ? '#D27B55' : '#78716C'} />
                       {/* Column Name */}
-                      <text x="26" y="14" fill={isJoinKey ? '#fbbf24' : '#a1a1aa'} fontSize="9" fontFamily="monospace" fontWeight={isJoinKey ? 'bold' : 'normal'}>
+                      <text x="26" y="14" fill={isJoinKey ? '#D27B55' : '#57534E'} fontSize="9" fontFamily="monospace" fontWeight={isJoinKey ? 'bold' : 'normal'}>
                         {h}
                       </text>
                     </g>
@@ -157,16 +157,16 @@ export default function SchemaVisualizer({
                 <path
                   d={`M ${leftPortX} ${leftPortY} C 250 ${leftPortY}, 250 ${rightPortY}, ${rightPortX} ${rightPortY}`}
                   fill="none"
-                  stroke="#6366f1"
+                  stroke="#D27B55"
                   strokeWidth="5"
-                  opacity="0.25"
+                  opacity="0.15"
                   filter="url(#glow)"
                 />
                 {/* Foreground path */}
                 <path
                   d={`M ${leftPortX} ${leftPortY} C 250 ${leftPortY}, 250 ${rightPortY}, ${rightPortX} ${rightPortY}`}
                   fill="none"
-                  stroke="#818cf8"
+                  stroke="#D27B55"
                   strokeWidth="1.75"
                   className="flowing-path"
                 />
@@ -179,13 +179,13 @@ export default function SchemaVisualizer({
                     width="80"
                     height="18"
                     rx="4"
-                    fill="#0e0e11"
-                    stroke="#4f46e5"
+                    fill="#FAF6F0"
+                    stroke="#D27B55"
                     strokeWidth="1"
                   />
                   <text
                     y="3"
-                    fill="#a5b4fc"
+                    fill="#D27B55"
                     fontSize="7.5"
                     fontWeight="bold"
                     fontFamily="monospace"
@@ -202,7 +202,7 @@ export default function SchemaVisualizer({
               <path
                 d={`M ${leftPortX} ${leftPortY} L ${rightPortX} ${rightPortY}`}
                 fill="none"
-                stroke="#27272a"
+                stroke="#E6E1DA"
                 strokeWidth="1.5"
                 strokeDasharray="4,4"
               />

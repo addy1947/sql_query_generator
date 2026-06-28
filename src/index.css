@@ -5,6 +5,16 @@
 @theme {
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --color-brand-primary: #FAF6F0;
+  --color-brand-card: #FFFFFF;
+  --color-brand-dark: #1C1917;
+  --color-brand-text-dark: #1C1917;
+  --color-brand-text-muted: #57534E;
+  --color-brand-accent: #D27B55;
+  --color-brand-accent-hover: #C26A45;
+  --color-brand-accent-light: #FBEBE3;
+  --color-brand-border: #E6E1DA;
+  --color-brand-border-muted: #F3EFE9;
 }
 
 html, body, #root {
@@ -13,6 +23,8 @@ html, body, #root {
   margin: 0;
   padding: 0;
   max-width: none !important;
+  background-color: #FAF6F0;
+  color: #1C1917;
 }
 
 :root {
@@ -32,16 +44,16 @@ code, pre, .font-mono {
 }
 
 ::-webkit-scrollbar-track {
-  background: #070708;
+  background: #FAF6F0;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #222225;
+  background: #D5CFC6;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #333338;
+  background: #B5AFA6;
 }
 
 @keyframes fadeIn {

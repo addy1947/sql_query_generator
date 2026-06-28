@@ -214,7 +214,7 @@ export function highlightSQL(sql) {
     // 2. String literal
     if (token.startsWith("'") && token.endsWith("'")) {
       return (
-        <span key={index} className="text-[#f1fa8c] font-mono font-medium">
+        <span key={index} className="text-[#16A34A] font-mono font-semibold">
           {token}
         </span>
       );
@@ -223,7 +223,7 @@ export function highlightSQL(sql) {
     // 3. Backtick identifier (column/table)
     if (token.startsWith('`') && token.endsWith('`')) {
       return (
-        <span key={index} className="text-[#8be9fd] font-mono font-medium">
+        <span key={index} className="text-[#44403C] font-mono font-medium">
           {token}
         </span>
       );
@@ -233,7 +233,7 @@ export function highlightSQL(sql) {
     const upperToken = token.toUpperCase().replace(/\s+/g, ' ');
     if (keywords.has(upperToken)) {
       return (
-        <span key={index} className="text-[#ff79c6] font-bold uppercase">
+        <span key={index} className="text-[#D27B55] font-bold uppercase">
           {token}
         </span>
       );
@@ -242,7 +242,7 @@ export function highlightSQL(sql) {
     // 5. Number
     if (/^\b\d+(?:\.\d+)?\b$/.test(token)) {
       return (
-        <span key={index} className="text-[#bd93f9] font-mono font-medium">
+        <span key={index} className="text-[#7C3AED] font-mono font-semibold">
           {token}
         </span>
       );
@@ -251,7 +251,7 @@ export function highlightSQL(sql) {
     // 6. Operators or commas
     if (/^[=><!]+$/.test(token) || token === ',') {
       return (
-        <span key={index} className="text-[#ffb86c] font-medium">
+        <span key={index} className="text-[#78716C] font-semibold">
           {token}
         </span>
       );
@@ -259,7 +259,7 @@ export function highlightSQL(sql) {
 
     // 7. General text
     return (
-      <span key={index} className="text-[#f8f8f2]">
+      <span key={index} className="text-[#1C1917]">
         {token}
       </span>
     );

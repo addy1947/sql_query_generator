@@ -736,7 +736,11 @@ function App() {
     <div className="lg:h-screen lg:overflow-hidden bg-brand-primary text-brand-text-dark flex flex-col font-sans selection:bg-brand-accent/25 selection:text-brand-text-dark">
       {/* Top navbar (Floating Pill on Light background) */}
       <header className="w-full px-4 sm:px-6 lg:px-8 py-3 bg-brand-primary z-50 flex justify-center border-b border-brand-border/40">
-        <div className="w-full max-w-6xl px-6 h-14 bg-brand-dark rounded-full flex items-center justify-between shadow-lg text-white">
+        <div className={`w-full max-w-6xl px-6 h-14 rounded-full flex items-center justify-between shadow-lg transition-all duration-300 ${
+          isAdvancedMode
+            ? 'bg-brand-dark text-white border border-transparent'
+            : 'bg-brand-card text-brand-text-dark border border-brand-border'
+        }`}>
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-lg bg-brand-accent text-white flex items-center justify-center font-bold shadow-sm">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -744,8 +748,12 @@ function App() {
               </svg>
             </div>
             <div>
-              <span className="font-semibold text-xs sm:text-sm tracking-tight text-white block leading-none">NexGenQuery</span>
-              <span className="text-[8px] text-zinc-400 uppercase tracking-widest block font-medium mt-1 leading-none">In-Browser Relational Engine</span>
+              <span className={`font-semibold text-xs sm:text-sm tracking-tight block leading-none ${
+                isAdvancedMode ? 'text-white' : 'text-brand-text-dark'
+              }`}>NexGenQuery</span>
+              <span className={`text-[8px] uppercase tracking-widest block font-medium mt-1 leading-none ${
+                isAdvancedMode ? 'text-zinc-400' : 'text-brand-text-muted'
+              }`}>In-Browser Relational Engine</span>
             </div>
           </div>
 
@@ -753,19 +761,24 @@ function App() {
             {/* Switch to Advanced Mode Toggle */}
             <button
               onClick={() => setIsAdvancedMode(!isAdvancedMode)}
-              className={`text-[10px] px-3.5 py-1.5 rounded-full border font-semibold transition-all duration-200 flex items-center space-x-1.5 cursor-pointer shadow-sm ${isAdvancedMode
+              className={`text-[10px] px-3.5 py-1.5 rounded-full border font-semibold transition-all duration-200 flex items-center space-x-1.5 cursor-pointer shadow-sm ${
+                isAdvancedMode
                   ? 'bg-brand-accent hover:bg-brand-accent-hover border-transparent text-white'
-                  : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300'
-                }`}
+                  : 'bg-brand-primary hover:bg-brand-accent-light border-brand-border text-brand-text-dark'
+              }`}
             >
-              <svg className={`w-3 h-3 transition-transform duration-300 ${isAdvancedMode ? 'rotate-180 text-white' : 'text-zinc-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className={`w-3 h-3 transition-transform duration-300 ${isAdvancedMode ? 'rotate-180 text-white' : 'text-brand-accent'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
               <span>{isAdvancedMode ? 'Advanced: ON' : 'Switch Advanced'}</span>
             </button>
 
-            <div className="hidden sm:flex items-center space-x-1 text-[9px] font-mono text-emerald-400 border border-emerald-950 bg-emerald-950/20 px-2.5 py-1 rounded-full">
-              <svg className="w-2.5 h-2.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className={`hidden sm:flex items-center space-x-1 text-[9px] font-mono px-2.5 py-1 rounded-full border ${
+              isAdvancedMode
+                ? 'text-emerald-400 border-emerald-950 bg-emerald-950/20'
+                : 'text-brand-accent border-brand-accent/20 bg-brand-accent-light'
+            }`}>
+              <svg className={`w-2.5 h-2.5 ${isAdvancedMode ? 'text-emerald-400' : 'text-brand-accent'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4" />
               </svg>
               <span>100% Client-Side</span>
@@ -774,7 +787,11 @@ function App() {
             {files.length > 0 && (
               <button
                 onClick={handleReset}
-                className="text-[10px] px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-900 border border-zinc-700 text-zinc-100 font-medium transition-all duration-200 flex items-center space-x-1.5 cursor-pointer shadow-sm"
+                className={`text-[10px] px-3 py-1.5 rounded-full font-medium transition-all duration-200 flex items-center space-x-1.5 cursor-pointer shadow-sm border ${
+                  isAdvancedMode
+                    ? 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-100'
+                    : 'bg-white hover:bg-brand-primary border-brand-border text-brand-text-dark'
+                }`}
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

@@ -831,7 +831,7 @@ function App() {
                   <div>
 
                     <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-brand-text-dark leading-tight">
-                      AI SQL Query <span className="text-brand-accent block sm:inline">Generator</span>
+                      NexGenQuery
                     </h1>
                     <p className="mt-4 text-brand-text-muted text-sm leading-relaxed max-w-md mx-auto lg:mx-0">
                       Convert your text instructions into SQL queries or input a query to have it explained. Supports MySQL, PostgreSQL, Supabase, BigQuery, and more.
